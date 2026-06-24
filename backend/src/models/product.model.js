@@ -94,7 +94,7 @@ const productSchema = new mongoose.Schema(
         },
 
         variants: {
-            tye: [
+            type: [
                 {
                     size: {
                         type: String,

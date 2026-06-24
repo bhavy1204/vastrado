@@ -65,7 +65,7 @@ const sellerSchema = new mongoose.Schema({
         type: String,
         select: false
     },
-    authId: {
+    providerId: {
         type: String,
         unique: true,
         sparse: true
