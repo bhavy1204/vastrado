@@ -22,6 +22,8 @@ const heroBannerSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
+heroBannerSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+
 const faqSchema = new mongoose.Schema(
     {
         question: { type: String, required: true },

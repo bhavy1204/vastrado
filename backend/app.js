@@ -4,13 +4,25 @@ import cookieParser from "cookie-parser";
 import helmet from "helmet"
 import morgan from "morgan";
 import { APIError } from "./src/utils/apiError.js";
+import { errorMiddleware } from "./src/middleware/error.middleware.js"
 
+// Routes
+import healthCheckRouter from "./src/routes/healthCheck.route.js";
+import adminRouter from "./src/routes/admin.route.js"
+import userRouter from "./src/routes/user.route.js"
+import paymentRouter from "./src/routes/payment.route.js"
+import productRouter from "./src/routes/product.route.js"
+import reviewRouter from "./src/routes/review.route.js"
+import sellerRouter from "./src/routes/seller.route.js"
+import siteContentRouter from "./src/routes/siteContent.route.js"
 
 const app = express();
 
 app.use(helmet());
 
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"))
+
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || [];
 
 app.use(cors({
     origin: (origin, callback) => {
@@ -25,6 +37,12 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }))
 
+app.use(
+    "/api/v1/payment/webhook",
+    express.raw({ type: "application/json" }),
+    paymentRouter
+)
+
 app.use(express.json({ limit: '5mb' }));
 
 app.use(express.urlencoded({ extended: true, limit: "5mb", }));
@@ -33,51 +51,19 @@ app.use(cookieParser());
 
 app.use(express.static("public"));
 
-// Routes
-import healthCheckRouter from "./src/routes/healthCheck.route.js";
-
 
 // Routes Declaration
 app.use("/api/v1/healthCheck", healthCheckRouter);
+app.use("/api/v1/admin", adminRouter);
+app.use("/api/v1/user", userRouter);
+app.use("/api/v1/payment", paymentRouter);
+app.use("/api/v1/product", productRouter);
+app.use("/api/v1/review", reviewRouter);
+app.use("/api/v1/seller", sellerRouter);
+app.use("/api/v1/siteContent", siteContentRouter);
 
-
-
-app.use((err, req, res, next) => {
-    if (err instanceof APIError) {
-        return res.status(err.statusCode).json({
-            success: false,
-            message: err.message,
-            errors: err.errors || [],
-            ...(process.env.NODE_ENV !== "production" && { stack: err.stack })
-        })
-    }
-
-    // mongooser validation error
-    if (err.name === "ValidationError") {
-        const erros = Object.values(err.errors).map((e) => e.message);
-        return res.status(400).json({
-            success: false,
-            message: "Validation error",
-            erros,
-        });
-    }
-
-    // mongoose duplicate key error
-    if (err.code === 11000) {
-        const field = Object.keys(err.keyValue)[0];
-        return res.status(409).json({
-            success: false,
-            message: `${field} already exists`,
-            errors: [],
-        });
-    }
-
-    console.error("Unhandled error : ", err);
-    return res.status(500).json({
-        success: false,
-        message: process.env.NODE_ENV === "production" ? "Internal Server Error" : err.message,
-        ...(process.env.NODE_ENV !== "production" && { stack: err.stack }),
-    })
-});
+app.use(errorMiddleware);
 
 export { app };
+
+
