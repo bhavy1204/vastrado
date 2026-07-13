@@ -29,12 +29,13 @@ import {
     uploadSellerAvatar,
     uploadSellerBanner,
 } from "../middleware/upload.middleware.js";
+import { parseLocationField } from "../middleware/parseLocation.js";
 
 const router = express.Router();
 
 // public
 
-router.post("/register", uploadSellerImages, validateSellerRegister, registerSeller);
+router.post("/register", uploadSellerImages, parseLocationField ,validateSellerRegister, registerSeller);
 router.post("/login", validateSellerLogin, loginSeller);
 router.post("/verify-email", verifySellerEmail);
 router.post("/resend-otp", resendSellerOTP);
