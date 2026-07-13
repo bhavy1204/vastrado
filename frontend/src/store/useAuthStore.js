@@ -1,11 +1,11 @@
 import { create } from "zustand";
-import { user, seller } from "../api/index.js";
+import { userService, sellerService } from "../api/index.js";
 
 const initialState = {
-    actorType: null,   
-    user: null,       
-    seller: null,      
-    isLoading: true,   
+    actorType: null,
+    user: null,
+    seller: null,
+    isLoading: true,
 };
 
 // store
@@ -30,10 +30,10 @@ const useAuthStore = create((set, get) => ({
         set({
             actorType: "user",
             user: userData,
-            seller: null,       
+            seller: null,      
             isLoading: false,
         });
-        
+
         localStorage.setItem("actorType", "user");
         localStorage.setItem("userRole", userData.role ?? "user");
     },
@@ -61,7 +61,7 @@ const useAuthStore = create((set, get) => ({
     },
 
     // checkAuth
-    
+
     // Called ONCE on app mount (in App.jsx or a top-level component).
     //
     // Problem it solves:
@@ -83,8 +83,7 @@ const useAuthStore = create((set, get) => ({
         try {
             if (actorType === "seller") {
 
-                const res = await seller.getDashboard();
-
+                const res = await sellerService.getDashboard();
                 const { _id, shopName, email, slug } = res.data.data;
 
                 set({
@@ -96,7 +95,7 @@ const useAuthStore = create((set, get) => ({
 
             } else {
 
-                const res = await user.getProfile();
+                const res = await userService.getProfile();
                 const { _id, fullName, email, role } = res.data.data;
 
                 set({
