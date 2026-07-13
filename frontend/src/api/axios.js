@@ -24,11 +24,9 @@ const refreshAxios = axios.create({
 axiosInstance.interceptors.request.use(
   (config) => {
 
-   
     if (import.meta.env.DEV) {
       console.log(`[API] ${config.method?.toUpperCase()} ${config.url}`);
     }
-
 
     if (config.data instanceof FormData) {
       delete config.headers["Content-Type"];
@@ -56,11 +54,16 @@ axiosInstance.interceptors.response.use(
     const originalRequest = error.config;
     const status = error.response?.status;
 
-    if (status !== 401 || originalRequest._retry) {
+    const isAuthEndpoint =
+      originalRequest?.url?.includes("/login") ||
+      originalRequest?.url?.includes("/refresh-token") ||
+      originalRequest?.url?.includes("/register");
+
+    if (status !== 401 || originalRequest._retry || isAuthEndpoint) {
       return Promise.reject(error);
     }
 
-    
+
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         failedQueue.push({ resolve, reject });
@@ -72,7 +75,7 @@ axiosInstance.interceptors.response.use(
     originalRequest._retry = true;
     isRefreshing = true;
 
-    
+
     const actorType = localStorage.getItem("actorType");
 
     const refreshEndpoint =
@@ -83,18 +86,18 @@ axiosInstance.interceptors.response.use(
     try {
       await refreshAxios.post(refreshEndpoint);
 
-      processQueue(null);                   
-      return axiosInstance(originalRequest); 
+      processQueue(null);
+      return axiosInstance(originalRequest);
 
     } catch (refreshError) {
 
-      processQueue(refreshError);  
+      processQueue(refreshError);
 
-      
+
       localStorage.removeItem("actorType");
       localStorage.removeItem("userRole");
 
-     
+
       const loginPath =
         actorType === "seller" ? "/seller/login" : "/login";
       window.location.href = loginPath;
@@ -108,6 +111,5 @@ axiosInstance.interceptors.response.use(
 );
 
 export default axiosInstance;
-
 
 

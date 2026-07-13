@@ -2,7 +2,7 @@ import api from "../axios.js";
 
 const BASE = "/v1/seller";
 
-const sellerAuthService = {
+const sellerService = {
 
   // publix
 
@@ -69,4 +69,4 @@ const sellerAuthService = {
     api.patch(`${BASE}/profile/location`, data),
 };
 
-export default sellerAuthService;
+export default sellerService;

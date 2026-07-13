@@ -2,7 +2,7 @@ import api from "../axios.js";
 
 const BASE = "/v1/user";
 
-const userAuthService = {
+const userService = {
 
   // public
 
@@ -76,4 +76,4 @@ const userAuthService = {
     api.delete(`${BASE}/wishlist/${productId}`),
 };
 
-export default userAuthService;
+export default userService;
