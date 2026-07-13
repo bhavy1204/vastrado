@@ -97,9 +97,9 @@ const verifyEmail = asyncHandler(async (req, res) => {
 
 
 const loginUser = asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
+    const { identifier, password } = req.body;
 
-    const user = await User.findOne({ email }).select("+password +refreshToken");
+    const user = await User.findOne({ email: identifier }).select("+password +refreshToken");
 
     if (!user) {
         throw new APIError(401, "Invalid email or password");
