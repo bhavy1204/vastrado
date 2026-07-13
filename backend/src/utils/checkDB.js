@@ -1,4 +1,4 @@
-import mongoose from mongoose
+import mongoose from "mongoose"
 
 export const checkDB = async () => {
     const state = mongoose.connection.readyState;

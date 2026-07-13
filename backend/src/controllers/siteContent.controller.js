@@ -2,7 +2,7 @@ import sharp from "sharp";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { APIError } from "../utils/apiError.js";
 import { APIResponse } from "../utils/apiResponse.js";
-import { HeroBanner, Faq } from "../models/heroBanner.model.js";
+import { HeroBanner, Faq } from "../models/siteContent.model.js";
 import { Seller } from "../models/seller.model.js";
 import { uploadToB2 } from "../utils/b2.js";
 

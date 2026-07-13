@@ -1,8 +1,8 @@
-import { asyncHandler } from "./asyncHandler";
-import { APIResponse } from "./apiResponse";
-import { APIError } from "../utils/apiError";
-import { User } from "../models/user.model";
-import { Seller } from "../models/seller.model";
+import {asyncHandler } from "../utils/asyncHandler.js";
+import { APIResponse } from "../utils/apiResponse.js";
+import { APIError } from "../utils/apiError.js";
+import { User } from "../models/user.model.js";
+import { Seller } from "../models/seller.model.js";
 
 
 const getAllSellers = asyncHandler(async (req, res) => {
