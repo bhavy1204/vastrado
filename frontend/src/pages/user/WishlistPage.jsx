@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { Heart } from "@phosphor-icons/react";
 import toast from "react-hot-toast";
-import { userService } from "@/api";
+import { userService } from "@/api/index";
 import usePagination from "@/hooks/usePagination";
 import ProductGrid from "@/components/product/ProductGrid";
 import Pagination from "@/components/common/Pagination";

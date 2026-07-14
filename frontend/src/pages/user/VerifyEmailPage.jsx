@@ -3,9 +3,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import { userService, sellerService } from "@/api";
+import { userService, sellerService } from "@/api/index";
 import { verifyEmailSchema } from "@/lib/validators";
-import { OTP_PURPOSES } from "@/lib/constants";
+import { OTP_PURPOSES } from "@/lib/constant";
 import Input from "@/components/common/Input";
 import Button from "@/components/common/Button";
 

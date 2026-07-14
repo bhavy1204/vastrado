@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Envelope, LockKey, IdentificationCard } from "@phosphor-icons/react";
 import toast from "react-hot-toast";
-import { userService, sellerService } from "@/api";
+import { userService, sellerService } from "@/api/index";
 import useAuthStore from "@/store/useAuthStore";
 import { userLoginSchema, sellerLoginSchema } from "@/lib/validators";
 import Input from "@/components/common/Input";
@@ -24,10 +24,10 @@ const TABS = {
     key: "user",
     label: "Customer",
     schema: userLoginSchema,
-    fieldName: "email",
-    fieldLabel: "Email",
+    fieldName: "identifier",
+    fieldLabel: "Email or username",
     fieldIcon: <Envelope size={16} />,
-    fieldType: "email",
+    fieldType: "text",
   },
   seller: {
     key: "seller",

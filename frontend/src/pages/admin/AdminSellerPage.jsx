@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { Storefront, CheckCircle, Prohibit } from "@phosphor-icons/react";
 import toast from "react-hot-toast";
-import { adminService } from "@/api";
+import { adminService } from "@/api/index";
 import usePagination from "@/hooks/usePagination";
 import useDebounce from "@/hooks/useDebounce";
 import { formatDate } from "@/lib/formatters";

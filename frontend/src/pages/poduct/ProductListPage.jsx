@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
-import { productService, userService } from "@/api";
+import { productService, userService } from "@/api/index";
 import usePagination from "@/hooks/usePagination";
 import useAuthStore from "@/store/useAuthStore";
 import ProductFilters from "@/components/product/ProductFilters";

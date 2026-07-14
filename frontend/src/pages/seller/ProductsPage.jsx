@@ -9,9 +9,9 @@ import {
   Image as ImageIcon,
 } from "@phosphor-icons/react";
 import toast from "react-hot-toast";
-import { productService } from "@/api";
+import { productService } from "@/api/index";
 import { createProductSchema } from "@/lib/validators";
-import { PRODUCT_TYPES, GENDERS } from "@/lib/constants";
+import { PRODUCT_TYPES, GENDERS } from "@/lib/constant";
 import {
   formatPrice,
   formatProductType,

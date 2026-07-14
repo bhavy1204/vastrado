@@ -1,9 +1,17 @@
 import { useEffect, useState, useCallback } from "react";
-import { Image, CheckCircle, XCircle, Trash, Plus, ArrowUp, ArrowDown } from "@phosphor-icons/react";
+import {
+  Image,
+  CheckCircle,
+  XCircle,
+  Trash,
+  Plus,
+  ArrowUp,
+  ArrowDown,
+} from "@phosphor-icons/react";
 import toast from "react-hot-toast";
-import siteContentService from "@/api/services/siteCOntent";
+import { siteContentService } from "@/api/index";
 import { validateImageFile } from "@/lib/formatters";
-import usePagination from "@/hooks/usePagination";
+import usePagination from "@/hooks/usePagination.js";
 import Loader from "@/components/common/Loader";
 import EmptyState from "@/components/common/EmptyState";
 import Pagination from "@/components/common/Pagination";
@@ -18,8 +26,18 @@ import Modal from "@/components/common/Modal";
  * for simplicity — swap for a dnd library later if you want that UX.
  */
 export default function AdminBannersPage() {
-  const { page, limit, params, totalPages, setTotalPages, nextPage, prevPage, goToPage, hasNextPage, hasPrevPage } =
-    usePagination();
+  const {
+    page,
+    limit,
+    params,
+    totalPages,
+    setTotalPages,
+    nextPage,
+    prevPage,
+    goToPage,
+    hasNextPage,
+    hasPrevPage,
+  } = usePagination();
 
   const [banners, setBanners] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -31,10 +49,16 @@ export default function AdminBannersPage() {
     siteContentService
       .adminGetAllBanners(params)
       .then((res) => {
-        setBanners(res.data?.banners || res.data || []);
-        setTotalPages(res.data?.totalPages || 1);
+        const bannersPayload = res.data?.banners ?? res.data?.data ?? res.data;
+        setBanners(Array.isArray(bannersPayload) ? bannersPayload : []);
+
+        const totalPages =
+          res.data?.totalPages ?? res.data?.data?.totalPages ?? 1;
+        setTotalPages(typeof totalPages === "number" ? totalPages : 1);
       })
-      .catch((err) => toast.error(err?.response?.data?.message || "Couldn't load banners"))
+      .catch((err) =>
+        toast.error(err?.response?.data?.message || "Couldn't load banners"),
+      )
       .finally(() => setIsLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, limit]);
@@ -46,11 +70,15 @@ export default function AdminBannersPage() {
   const handleApprove = async (banner) => {
     setActioningId(banner._id);
     try {
-      await siteContentService.approveBanner(banner._id, { status: "approved" });
+      await siteContentService.approveBanner(banner._id, {
+        status: "approved",
+      });
       toast.success("Banner approved");
       fetchBanners();
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Couldn't approve this banner");
+      toast.error(
+        err?.response?.data?.message || "Couldn't approve this banner",
+      );
     } finally {
       setActioningId(null);
     }
@@ -63,7 +91,9 @@ export default function AdminBannersPage() {
       toast.success("Banner rejected");
       fetchBanners();
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Couldn't reject this banner");
+      toast.error(
+        err?.response?.data?.message || "Couldn't reject this banner",
+      );
     } finally {
       setActioningId(null);
     }
@@ -77,7 +107,9 @@ export default function AdminBannersPage() {
       toast.success("Banner deleted");
       fetchBanners();
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Couldn't delete this banner");
+      toast.error(
+        err?.response?.data?.message || "Couldn't delete this banner",
+      );
     } finally {
       setActioningId(null);
     }
@@ -89,7 +121,10 @@ export default function AdminBannersPage() {
     if (swapIndex < 0 || swapIndex >= banners.length) return;
 
     const reordered = [...banners];
-    [reordered[index], reordered[swapIndex]] = [reordered[swapIndex], reordered[index]];
+    [reordered[index], reordered[swapIndex]] = [
+      reordered[swapIndex],
+      reordered[index],
+    ];
     setBanners(reordered);
 
     try {
@@ -97,7 +132,9 @@ export default function AdminBannersPage() {
         order: reordered.map((b, i) => ({ id: b._id, position: i })),
       });
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Couldn't save the new order");
+      toast.error(
+        err?.response?.data?.message || "Couldn't save the new order",
+      );
       fetchBanners();
     }
   };
@@ -106,7 +143,12 @@ export default function AdminBannersPage() {
     <div className="flex flex-col gap-5 p-4 sm:p-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <h1 className="text-lg font-bold text-text">Banners</h1>
-        <Button variant="primary" size="sm" leftIcon={<Plus size={16} weight="bold" />} onClick={() => setIsCreateOpen(true)}>
+        <Button
+          variant="primary"
+          size="sm"
+          leftIcon={<Plus size={16} weight="bold" />}
+          onClick={() => setIsCreateOpen(true)}
+        >
           Add banner
         </Button>
       </div>
@@ -114,7 +156,10 @@ export default function AdminBannersPage() {
       {isLoading ? (
         <Loader className="py-16" label="Loading banners..." />
       ) : banners.length === 0 ? (
-        <EmptyState icon={<Image size={26} weight="duotone" />} title="No banners yet" />
+        <EmptyState
+          icon={<Image size={26} weight="duotone" />}
+          title="No banners yet"
+        />
       ) : (
         <div className="flex flex-col gap-3">
           {banners.map((banner, index) => (
@@ -123,11 +168,19 @@ export default function AdminBannersPage() {
               className="flex items-center gap-3 p-3 rounded-md border border-border bg-surface-raised"
             >
               <div className="h-16 w-28 rounded-md overflow-hidden bg-surface shrink-0">
-                {banner.image && <img src={banner.image} alt="" className="h-full w-full object-cover" />}
+                {banner.image && (
+                  <img
+                    src={banner.image}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                )}
               </div>
 
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-text truncate">{banner.title || "Untitled banner"}</p>
+                <p className="text-sm font-medium text-text truncate">
+                  {banner.title || "Untitled banner"}
+                </p>
                 <StatusPill status={banner.status} />
               </div>
 
@@ -212,14 +265,17 @@ export default function AdminBannersPage() {
 }
 
 function StatusPill({ status }) {
-  const config = {
-    approved: "bg-success-bg text-success border-success-border",
-    pending: "bg-warning-bg text-warning border-warning-border",
-    rejected: "bg-error-bg text-error border-error-border",
-  }[status] || "bg-surface text-text-muted border-border";
+  const config =
+    {
+      approved: "bg-success-bg text-success border-success-border",
+      pending: "bg-warning-bg text-warning border-warning-border",
+      rejected: "bg-error-bg text-error border-error-border",
+    }[status] || "bg-surface text-text-muted border-border";
 
   return (
-    <span className={`inline-block mt-1 text-xs font-medium rounded-full border px-2 py-0.5 ${config}`}>
+    <span
+      className={`inline-block mt-1 text-xs font-medium rounded-full border px-2 py-0.5 ${config}`}
+    >
       {status || "unknown"}
     </span>
   );
@@ -235,7 +291,9 @@ function CreateBannerModal({ isOpen, onClose, onCreated }) {
     if (!selected) return;
     const validation = validateImageFile(selected, 5);
     if (!validation?.isValid) {
-      toast.error(validation?.message || "Please choose a valid image, under 5MB");
+      toast.error(
+        validation?.message || "Please choose a valid image, under 5MB",
+      );
       e.target.value = "";
       return;
     }
@@ -268,7 +326,9 @@ function CreateBannerModal({ isOpen, onClose, onCreated }) {
     <Modal isOpen={isOpen} onClose={onClose} title="Add banner" size="sm">
       <div className="flex flex-col gap-4">
         <div>
-          <label className="text-sm font-medium text-text block mb-1.5">Title (optional)</label>
+          <label className="text-sm font-medium text-text block mb-1.5">
+            Title (optional)
+          </label>
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -276,14 +336,24 @@ function CreateBannerModal({ isOpen, onClose, onCreated }) {
           />
         </div>
         <div>
-          <label className="text-sm font-medium text-text block mb-1.5">Image</label>
-          <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFileChange} />
+          <label className="text-sm font-medium text-text block mb-1.5">
+            Image
+          </label>
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={handleFileChange}
+          />
         </div>
         <div className="flex justify-end gap-2">
           <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
-          <Button variant="primary" isLoading={isSubmitting} onClick={handleSubmit}>
+          <Button
+            variant="primary"
+            isLoading={isSubmitting}
+            onClick={handleSubmit}
+          >
             Add banner
           </Button>
         </div>
@@ -291,5 +361,3 @@ function CreateBannerModal({ isOpen, onClose, onCreated }) {
     </Modal>
   );
 }
-
-

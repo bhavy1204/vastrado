@@ -10,7 +10,7 @@ import {
   Minus,
 } from "@phosphor-icons/react";
 import toast from "react-hot-toast";
-import { siteContentService, productService } from "@/api";
+import { siteContentService, productService } from "@/api/index";
 import ProductGrid from "@/components/product/ProductGrid";
 import Button from "@/components/common/Button";
 
@@ -55,7 +55,9 @@ function BannerSlider() {
     siteContentService
       .getAllBanners()
       .then((res) => {
-        if (!isCancelled) setBanners(res.data?.banners || res.data || []);
+        if (isCancelled) return;
+        const payload = res.data?.banners ?? res.data?.data ?? res.data;
+        setBanners(Array.isArray(payload) ? payload : []);
       })
       .catch(() => {})
       .finally(() => {

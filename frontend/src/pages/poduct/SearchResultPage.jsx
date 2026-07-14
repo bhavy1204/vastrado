@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { MagnifyingGlass } from "@phosphor-icons/react";
 import toast from "react-hot-toast";
-import { productService, userService } from "@/api";
+import { productService, userService } from "@/api/index";
 import useDebounce from "@/hooks/useDebounce";
 import usePagination from "@/hooks/usePagination";
 import useAuthStore from "@/store/useAuthStore";

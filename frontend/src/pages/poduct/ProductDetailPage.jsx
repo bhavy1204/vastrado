@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Heart, WhatsappLogo, ChatCircleDots, CaretLeft, CaretRight } from "@phosphor-icons/react";
 import toast from "react-hot-toast";
-import { productService, reviewService, userService } from "@/api";
+import { productService, reviewService, userService } from "@/api/index";
 import useAuthStore from "@/store/useAuthStore";
 import usePagination from "@/hooks/usePagination";
 import { formatPrice, formatDiscount, buildWhatsAppLink, formatProductType } from "@/lib/formatters";

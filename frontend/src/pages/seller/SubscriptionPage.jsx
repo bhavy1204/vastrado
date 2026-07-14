@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { CreditCard, CheckCircle, WarningCircle } from "@phosphor-icons/react";
 import toast from "react-hot-toast";
-import { paymentService, sellerService } from "@/api";
+import { paymentService, sellerService } from "@/api/index";
 import useAuthStore from "@/store/useAuthStore";
 import { formatDate, formatPrice } from "@/lib/formatters";
 import SubscriptionStatusBadge from "@/components/seller/SubscriptionStatusBadge";

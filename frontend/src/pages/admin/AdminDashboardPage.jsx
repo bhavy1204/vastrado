@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Storefront, Users, CreditCard, Image } from "@phosphor-icons/react";
 import toast from "react-hot-toast";
-import { adminService } from "@/api";
+import { adminService } from "@/api/index";
 import Loader from "@/components/common/Loader";
 
 /**

@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Question, Plus, PencilSimple, Trash } from "@phosphor-icons/react";
 import toast from "react-hot-toast";
-import { siteContentService } from "@/api";
+import { siteContentService } from "@/api/index";
 import { faqSchema } from "@/lib/validators";
 import Loader from "@/components/common/Loader";
 import EmptyState from "@/components/common/EmptyState";

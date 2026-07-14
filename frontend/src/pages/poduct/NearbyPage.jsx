@@ -1,4 +1,4 @@
-import NearbySellersMap from "@/components/map/NearbySellersMap";
+import NearbySellersMap from "@/components/map/NearBySellerMap";
 
 /**
  * NearbyPage — /nearby

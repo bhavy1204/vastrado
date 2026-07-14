@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocation, Link } from "react-router-dom";
 import { Envelope, CheckCircle } from "@phosphor-icons/react";
 import toast from "react-hot-toast";
-import { userService, sellerService } from "@/api";
+import { userService, sellerService } from "@/api/index";
 import { forgotPasswordSchema } from "@/lib/validators";
 import Input from "@/components/common/Input";
 import Button from "@/components/common/Button";

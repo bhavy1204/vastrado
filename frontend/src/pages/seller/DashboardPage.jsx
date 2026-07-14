@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Package, Eye, Star, ArrowRight } from "@phosphor-icons/react";
 import toast from "react-hot-toast";
-import { sellerService } from "@/api";
+import { sellerService } from "@/api/index";
 import useAuthStore from "@/store/useAuthStore";
 import Loader from "@/components/common/Loader";
 import SubscriptionStatusBadge from "@/components/seller/SubscriptionStatusBadge";
