@@ -3,7 +3,7 @@ import { APIResponse } from "../utils/apiResponse.js";
 import { APIError } from "../utils/apiError.js";
 import { User } from "../models/user.model.js";
 import { Seller } from "../models/seller.model.js";
-
+import {Product} from "../models/product.model.js"
 
 const getAllSellers = asyncHandler(async (req, res) => {
     const page = Math.max(1, parseInt(req.query.page) || 1);
@@ -70,7 +70,7 @@ const approveSeller = asyncHandler(async (req, res) => {
 })
 
 const suspendSeller = asyncHandler(async (req, res) => {
-
+    console.log("SUSPEND REQ");
     const seller = await Seller.findById(req.params.id).select("-password -refreshToken -authId");
 
     if (!seller) {
@@ -90,7 +90,7 @@ const suspendSeller = asyncHandler(async (req, res) => {
 });
 
 const getAllUsers = asyncHandler(async (req, res) => {
-
+    console.log("USER REACHED HERE")
     const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 10));
     const skip = (page - 1) * limit;

@@ -100,15 +100,21 @@ export default function AdminSellersPage() {
   };
 
   return (
-    <div className="flex flex-col gap-5 p-4 sm:p-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-lg font-bold text-text">Sellers</h1>
+    <div className="flex flex-col gap-6 p-5 sm:p-7">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-text">Seller Management</h1>
+          <p className="mt-1 text-sm text-text-muted">
+            Review and manage all registered sellers.
+          </p>
+        </div>
+
         <input
           type="search"
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           placeholder="Search by shop name or email..."
-          className="h-9 w-64 max-w-full rounded-md border border-border bg-surface-raised text-sm text-text px-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+          className="h-11 w-full md:w-80 rounded-lg border border-border bg-surface-raised px-4 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
         />
       </div>
 
@@ -116,70 +122,99 @@ export default function AdminSellersPage() {
         <Loader className="py-16" label="Loading sellers..." />
       ) : sellers.length === 0 ? (
         <EmptyState
-          icon={<Storefront size={26} weight="duotone" />}
+          icon={<Storefront size={30} weight="duotone" />}
           title="No sellers found"
         />
       ) : (
-        <div className="rounded-md border border-border bg-surface-raised overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border text-left text-xs text-text-muted uppercase tracking-wide">
-                <th className="px-4 py-3 font-medium">Shop</th>
-                <th className="px-4 py-3 font-medium">Email</th>
-                <th className="px-4 py-3 font-medium">Subscription</th>
-                <th className="px-4 py-3 font-medium">Joined</th>
-                <th className="px-4 py-3 font-medium text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sellers.map((seller) => (
-                <tr
-                  key={seller._id}
-                  className="border-b border-border last:border-b-0"
-                >
-                  <td className="px-4 py-3 font-medium text-text">
-                    {seller.shopName}
-                  </td>
-                  <td className="px-4 py-3 text-text-secondary">
-                    {seller.email}
-                  </td>
-                  <td className="px-4 py-3">
-                    <SubscriptionStatusBadge
-                      status={seller.subscriptionStatus}
-                    />
-                  </td>
-                  <td className="px-4 py-3 text-text-muted">
-                    {formatDate(seller.createdAt)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-end gap-2">
-                      {seller.isApproved ? (
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          leftIcon={<Prohibit size={14} />}
-                          isLoading={actioningId === seller._id}
-                          onClick={() => handleSuspend(seller)}
-                        >
-                          Suspend
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="primary"
-                          size="sm"
-                          leftIcon={<CheckCircle size={14} />}
-                          isLoading={actioningId === seller._id}
-                          onClick={() => handleApprove(seller)}
-                        >
-                          Approve
-                        </Button>
-                      )}
+        <div className="grid gap-5">
+          {sellers.map((seller) => (
+            <div
+              key={seller._id}
+              className="rounded-xl border border-border bg-surface-raised p-6 transition-all hover:border-primary/25 hover:shadow-sm"
+            >
+              <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex items-start gap-4">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary/10 text-lg font-bold text-primary">
+                    {seller.shopName?.charAt(0)?.toUpperCase()}
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <h2 className="text-lg font-semibold text-text">
+                        {seller.shopName}
+                      </h2>
+
+                      <p className="text-sm text-text-secondary">
+                        {seller.email}
+                      </p>
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+
+                    <div className="flex flex-wrap items-center gap-3 text-sm">
+                      <SubscriptionStatusBadge
+                        status={seller.subscriptionStatus}
+                      />
+
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-medium text-text">
+                          Approved
+                        </span>
+
+                        <button
+                          disabled={actioningId === seller._id}
+                          onClick={() =>
+                            seller.isApproved
+                              ? handleSuspend(seller)
+                              : handleApprove(seller)
+                          }
+                          className={`relative h-7 w-12 rounded-full transition-colors ${
+                            seller.isApproved ? "bg-primary" : "bg-border"
+                          } ${
+                            actioningId === seller._id
+                              ? "opacity-60 cursor-not-allowed"
+                              : "cursor-pointer"
+                          }`}
+                        >
+                          <span
+                            className={`absolute top-1 h-5 w-5 rounded-full bg-white transition-transform ${
+                              seller.isApproved
+                                ? "translate-x-6"
+                                : "translate-x-1"
+                            }`}
+                          />
+                        </button>
+                      </div>
+                    </div>
+
+                    <p className="text-sm text-text-muted">
+                      Joined {formatDate(seller.createdAt)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {seller.isApproved ? (
+                    <Button
+                      variant="secondary"
+                      leftIcon={<Prohibit size={16} />}
+                      isLoading={actioningId === seller._id}
+                      onClick={() => handleSuspend(seller)}
+                    >
+                      Suspend Seller
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="primary"
+                      leftIcon={<CheckCircle size={16} />}
+                      isLoading={actioningId === seller._id}
+                      onClick={() => handleApprove(seller)}
+                    >
+                      Approve Seller
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 

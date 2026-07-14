@@ -14,5 +14,5 @@ export const verifyAdmin = asyncHandler(async (req, res, next) => {
         throw new APIError(403, "Admin access only")
     }
 
-    next;
+    next();
 });

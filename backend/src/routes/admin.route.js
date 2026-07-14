@@ -28,7 +28,7 @@ router.patch("/sellers/:id/approve", validateObjectId, approveSeller)
 router.patch("/sellers/:id/suspend", validateObjectId, suspendSeller)
 
 
-router.get("/users", validatePaginationQuery, getAllUsers)
+router.get("/users", getAllUsers)
 router.get("/user/search", getUserByEmail)
 router.get("/users/:id", validateObjectId, getUserById)
 router.delete("/users/:id", validateObjectId, deleteUser)

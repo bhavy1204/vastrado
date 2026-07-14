@@ -17,6 +17,7 @@ import EmptyState from "@/components/common/EmptyState";
 import Pagination from "@/components/common/Pagination";
 import Button from "@/components/common/Button";
 import Modal from "@/components/common/Modal";
+import { SelectionForeground } from "@phosphor-icons/react/dist/ssr";
 
 /**
  * Admin BannersPage — /admin/banners
@@ -288,14 +289,15 @@ function CreateBannerModal({ isOpen, onClose, onCreated }) {
   const handleFileChange = (e) => {
     const selected = e.target.files?.[0];
     if (!selected) return;
-   const errorMessage = validateImageFile(file, 5);
+
+   const errorMessage = validateImageFile(selected, 5);
    if (errorMessage) {
      toast.error(errorMessage);
      e.target.value = "";
      return;
    }
-    setFile(file);
     setFile(selected);
+
   };
 
   const handleSubmit = async () => {
@@ -307,7 +309,7 @@ function CreateBannerModal({ isOpen, onClose, onCreated }) {
     try {
       const formData = new FormData();
       formData.append("title", title);
-      formData.append("image", file);
+      formData.append("banner", file);
       await siteContentService.adminCreateBanner(formData);
       toast.success("Banner added");
       setTitle("");
