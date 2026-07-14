@@ -30,7 +30,7 @@ const useAuthStore = create((set, get) => ({
         set({
             actorType: "user",
             user: userData,
-            seller: null,      
+            seller: null,
             isLoading: false,
         });
 
@@ -43,7 +43,7 @@ const useAuthStore = create((set, get) => ({
         set({
             actorType: "seller",
             seller: sellerData,
-            user: null,            
+            user: null,
             isLoading: false,
         });
         localStorage.setItem("actorType", "seller");
@@ -53,7 +53,7 @@ const useAuthStore = create((set, get) => ({
     clearAuth: () => {
         set({
             ...initialState,
-            isLoading: false,   
+            isLoading: false,
         });
 
         localStorage.removeItem("actorType");
@@ -84,11 +84,10 @@ const useAuthStore = create((set, get) => ({
             if (actorType === "seller") {
 
                 const res = await sellerService.getDashboard();
-                const { _id, shopName, email, slug } = res.data.data;
 
                 set({
                     actorType: "seller",
-                    seller: { _id, shopName, email, slug },
+                    seller: res.data.data,
                     user: null,
                     isLoading: false,
                 });
@@ -96,11 +95,10 @@ const useAuthStore = create((set, get) => ({
             } else {
 
                 const res = await userService.getProfile();
-                const { _id, fullName, email, role } = res.data.data;
 
                 set({
                     actorType: "user",
-                    user: { _id, fullName, email, role },
+                    user: res.data.data,
                     seller: null,
                     isLoading: false,
                 });
@@ -130,5 +128,4 @@ const useAuthStore = create((set, get) => ({
 }));
 
 export default useAuthStore;
-
 
