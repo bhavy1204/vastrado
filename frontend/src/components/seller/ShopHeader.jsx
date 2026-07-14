@@ -19,7 +19,7 @@ export default function ShopHeader({
   onOpenLocation,
   onAddProduct,
 }) {
-  const { shopName, description, avatar, banner, averageRating, numReviews, subscriptionStatus } = seller;
+  const { shopName, shopDescription, avatar, banner, averageRating, numReviews, subscriptionStatus } = seller;
 
   return (
     <div className="relative">
@@ -72,7 +72,7 @@ export default function ShopHeader({
 
           <div className="relative group flex items-start gap-2">
             <p className="text-sm text-text-secondary leading-relaxed max-w-2xl">
-              {description || (isOwner ? "Add a description so customers know what you sell." : "")}
+              {shopDescription || (isOwner ? "Add a Shop Description so customers know what you sell." : "")}
             </p>
             {isOwner && (
               <button

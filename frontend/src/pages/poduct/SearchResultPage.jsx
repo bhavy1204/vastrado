@@ -57,8 +57,8 @@ export default function SearchResultsPage() {
     productService
       .search({ q: activeQuery, ...params, ...filters })
       .then((res) => {
-        setProducts(res.data?.products || res.data || []);
-        setTotalPages(res.data?.totalPages || 1);
+        setProducts(res.data?.data.products);
+        setTotalPages(res.data.data.pagination.totalPages);
       })
       .catch((err) => toast.error(err?.response?.data?.message || "Search failed"))
       .finally(() => setIsLoading(false));

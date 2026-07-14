@@ -52,8 +52,7 @@ export default function AdminBannersPage() {
         const bannersPayload = res.data?.banners ?? res.data?.data ?? res.data;
         setBanners(Array.isArray(bannersPayload) ? bannersPayload : []);
 
-        const totalPages =
-          res.data?.totalPages ?? res.data?.data?.totalPages ?? 1;
+        const totalPages = res.data.data.pagination.totalPages
         setTotalPages(typeof totalPages === "number" ? totalPages : 1);
       })
       .catch((err) =>
@@ -289,14 +288,13 @@ function CreateBannerModal({ isOpen, onClose, onCreated }) {
   const handleFileChange = (e) => {
     const selected = e.target.files?.[0];
     if (!selected) return;
-    const validation = validateImageFile(selected, 5);
-    if (!validation?.isValid) {
-      toast.error(
-        validation?.message || "Please choose a valid image, under 5MB",
-      );
-      e.target.value = "";
-      return;
-    }
+   const errorMessage = validateImageFile(file, 5);
+   if (errorMessage) {
+     toast.error(errorMessage);
+     e.target.value = "";
+     return;
+   }
+    setFile(file);
     setFile(selected);
   };
 

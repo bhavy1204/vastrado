@@ -33,12 +33,12 @@ export default function AdminUsersPage() {
 
     const request = isEmailSearch
       ? adminService.getUserByEmail(debouncedSearch).then((res) => ({
-          users: res.data ? [res.data] : [],
+          users: res.data.data,
           totalPages: 1,
         }))
       : adminService.getAllUsers(params).then((res) => ({
-          users: res.data?.users || res.data || [],
-          totalPages: res.data?.totalPages || 1,
+          users: res.data.data.users,
+          totalPages: res.data.data.pagination.totalPages,
         }));
 
     request

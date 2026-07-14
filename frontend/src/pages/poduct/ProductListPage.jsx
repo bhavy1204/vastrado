@@ -36,8 +36,8 @@ export default function ProductListPage() {
     productService
       .getAll({ ...params, ...filters })
       .then((res) => {
-        setProducts(res.data?.products || res.data || []);
-        setTotalPages(res.data?.totalPages || 1);
+        setProducts(res.data.data.products);
+        setTotalPages(res.data.data.pagination.totalPages);
       })
       .catch((err) => toast.error(err?.response?.data?.message || "Couldn't load products"))
       .finally(() => setIsLoading(false));
@@ -53,7 +53,7 @@ export default function ProductListPage() {
     userService
       .getWishlist()
       .then((res) => {
-        const items = res.data?.items || res.data || [];
+        const items = res.data?.data.items;
         setWishlistedIds(items.map((p) => p._id || p.product?._id));
       })
       .catch(() => {});

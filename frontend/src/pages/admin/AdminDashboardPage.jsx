@@ -22,7 +22,7 @@ export default function AdminDashboardPage() {
     adminService
       .getDashboardStats()
       .then((res) => {
-        if (!isCancelled) setStats(res.data);
+        if (!isCancelled) setStats(res.data?.data);
       })
       .catch((err) => toast.error(err?.response?.data?.message || "Couldn't load dashboard stats"))
       .finally(() => {

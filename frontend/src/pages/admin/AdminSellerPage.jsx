@@ -18,8 +18,19 @@ import Button from "@/components/common/Button";
  * or accepted query params differ.
  */
 export default function AdminSellersPage() {
-  const { page, limit, params, totalPages, setTotalPages, nextPage, prevPage, goToPage, hasNextPage, hasPrevPage, resetPage } =
-    usePagination();
+  const {
+    page,
+    limit,
+    params,
+    totalPages,
+    setTotalPages,
+    nextPage,
+    prevPage,
+    goToPage,
+    hasNextPage,
+    hasPrevPage,
+    resetPage,
+  } = usePagination();
 
   const [searchInput, setSearchInput] = useState("");
   const debouncedSearch = useDebounce(searchInput, 400);
@@ -33,10 +44,12 @@ export default function AdminSellersPage() {
     adminService
       .getAllSellers({ ...params, search: debouncedSearch || undefined })
       .then((res) => {
-        setSellers(res.data?.sellers || res.data || []);
-        setTotalPages(res.data?.totalPages || 1);
+        setSellers(res.data.data.sellers);
+        setTotalPages(res.data.data.pagination.totalPages);
       })
-      .catch((err) => toast.error(err?.response?.data?.message || "Couldn't load sellers"))
+      .catch((err) =>
+        toast.error(err?.response?.data?.message || "Couldn't load sellers"),
+      )
       .finally(() => setIsLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, limit, debouncedSearch]);
@@ -57,21 +70,30 @@ export default function AdminSellersPage() {
       toast.success(`${seller.shopName} approved`);
       fetchSellers();
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Couldn't approve this seller");
+      toast.error(
+        err?.response?.data?.message || "Couldn't approve this seller",
+      );
     } finally {
       setActioningId(null);
     }
   };
 
   const handleSuspend = async (seller) => {
-    if (!window.confirm(`Suspend ${seller.shopName}? Their shop will be hidden from customers.`)) return;
+    if (
+      !window.confirm(
+        `Suspend ${seller.shopName}? Their shop will be hidden from customers.`,
+      )
+    )
+      return;
     setActioningId(seller._id);
     try {
       await adminService.suspendSeller(seller._id);
       toast.success(`${seller.shopName} suspended`);
       fetchSellers();
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Couldn't suspend this seller");
+      toast.error(
+        err?.response?.data?.message || "Couldn't suspend this seller",
+      );
     } finally {
       setActioningId(null);
     }
@@ -93,7 +115,10 @@ export default function AdminSellersPage() {
       {isLoading ? (
         <Loader className="py-16" label="Loading sellers..." />
       ) : sellers.length === 0 ? (
-        <EmptyState icon={<Storefront size={26} weight="duotone" />} title="No sellers found" />
+        <EmptyState
+          icon={<Storefront size={26} weight="duotone" />}
+          title="No sellers found"
+        />
       ) : (
         <div className="rounded-md border border-border bg-surface-raised overflow-x-auto">
           <table className="w-full text-sm">
@@ -108,13 +133,24 @@ export default function AdminSellersPage() {
             </thead>
             <tbody>
               {sellers.map((seller) => (
-                <tr key={seller._id} className="border-b border-border last:border-b-0">
-                  <td className="px-4 py-3 font-medium text-text">{seller.shopName}</td>
-                  <td className="px-4 py-3 text-text-secondary">{seller.email}</td>
-                  <td className="px-4 py-3">
-                    <SubscriptionStatusBadge status={seller.subscriptionStatus} />
+                <tr
+                  key={seller._id}
+                  className="border-b border-border last:border-b-0"
+                >
+                  <td className="px-4 py-3 font-medium text-text">
+                    {seller.shopName}
                   </td>
-                  <td className="px-4 py-3 text-text-muted">{formatDate(seller.createdAt)}</td>
+                  <td className="px-4 py-3 text-text-secondary">
+                    {seller.email}
+                  </td>
+                  <td className="px-4 py-3">
+                    <SubscriptionStatusBadge
+                      status={seller.subscriptionStatus}
+                    />
+                  </td>
+                  <td className="px-4 py-3 text-text-muted">
+                    {formatDate(seller.createdAt)}
+                  </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">
                       {seller.isApproved ? (

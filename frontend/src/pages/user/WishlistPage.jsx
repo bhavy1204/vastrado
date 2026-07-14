@@ -23,10 +23,10 @@ export default function WishlistPage() {
     userService
       .getWishlist(params)
       .then((res) => {
-        const items = res.data?.items || res.data || [];
+        const items = res.data.data.items;
         // Items may come back either as raw products or { product } wrappers
         setProducts(items.map((item) => item.product || item));
-        setTotalPages(res.data?.totalPages || 1);
+        setTotalPages(res.data.data.pagination.totalPages);
       })
       .catch((err) => toast.error(err?.response?.data?.message || "Couldn't load your wishlist"))
       .finally(() => setIsLoading(false));

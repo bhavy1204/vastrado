@@ -33,7 +33,7 @@ export default function SellerSubscriptionPage() {
     sellerService
       .getSubscription()
       .then((res) => {
-        if (!isCancelled) setSubscription(res.data);
+        if (!isCancelled) setSubscription(res.data.data);
       })
       .catch(() => {})
       .finally(() => {
@@ -87,7 +87,7 @@ export default function SellerSubscriptionPage() {
             toast.success("Subscription activated");
             updateSellerState({ subscriptionStatus: "active" });
             const res = await sellerService.getSubscription();
-            setSubscription(res.data);
+            setSubscription(res.data.data);
           } catch (err) {
             toast.error(err?.response?.data?.message || "Payment verification failed");
           }
@@ -113,7 +113,7 @@ export default function SellerSubscriptionPage() {
       toast.success("Subscription cancelled");
       updateSellerState({ subscriptionStatus: "cancelled" });
       const res = await sellerService.getSubscription();
-      setSubscription(res.data);
+      setSubscription(res.data.data);
     } catch (err) {
       toast.error(err?.response?.data?.message || "Couldn't cancel your subscription");
     } finally {

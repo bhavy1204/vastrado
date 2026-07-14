@@ -40,7 +40,7 @@ export default function ShopPage() {
     sellerService
       .getSellerPublicProfile(slug)
       .then((res) => {
-        if (!isCancelled) setSeller(res.data);
+        if (!isCancelled) setSeller(res.data.data);
       })
       .catch((err) => {
         if (!isCancelled) {
@@ -63,8 +63,8 @@ export default function ShopPage() {
     productService
       .getSellerProducts(seller._id, params)
       .then((res) => {
-        setProducts(res.data?.products || res.data || []);
-        setTotalPages(res.data?.totalPages || 1);
+        setProducts(res.data.data.products);
+        setTotalPages(res.data.data.pagination.totalPages);
       })
       .catch(() => {})
       .finally(() => setIsLoadingProducts(false));

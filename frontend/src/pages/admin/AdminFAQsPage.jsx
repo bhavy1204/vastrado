@@ -29,7 +29,7 @@ export default function AdminFAQsPage() {
     setIsLoading(true);
     siteContentService
       .getAllFAQs()
-      .then((res) => setFaqs(res.data?.faqs || res.data || []))
+      .then((res) => setFaqs(res.data?.data))
       .catch((err) => toast.error(err?.response?.data?.message || "Couldn't load FAQs"))
       .finally(() => setIsLoading(false));
   };

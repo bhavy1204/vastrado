@@ -72,13 +72,13 @@ export default function LoginPage() {
     try {
       if (activeTab === "user") {
         const res = await userService.login(data);
-        const user = res.data?.user ?? res.data;
+        const user = res.data.data.user ?? res.data.data;
         setUser(user);
         toast.success(`Welcome back${user?.fullName ? `, ${user.fullName}` : ""}`);
         navigate(user?.role === "admin" ? "/admin/dashboard" : "/", { replace: true });
       } else {
         const res = await sellerService.login(data);
-        const seller = res.data?.seller ?? res.data;
+        const seller = res.data.data.seller ?? res.data.data;
         setSeller(seller);
         toast.success(`Welcome back, ${seller?.shopName ?? "seller"}`);
         navigate("/seller/dashboard", { replace: true });

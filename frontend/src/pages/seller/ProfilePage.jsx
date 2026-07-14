@@ -16,20 +16,23 @@ import Modal from "@/components/common/Modal";
 import Input from "@/components/common/Input";
 import Button from "@/components/common/Button";
 
-/**
- * Seller ProfilePage — /seller/profile
- * The seller's own IG/LinkedIn-style shop page, with edit affordances.
- * Adding a product opens the same modal flow as ProductsPage — since
- * there's no dedicated product-create page, this just points sellers there
- * to avoid duplicating the form modal in two places.
- */
 export default function SellerProfilePage() {
   const navigate = useNavigate();
   const { seller, updateSellerState } = useAuthStore();
   const [activeModal, setActiveModal] = useState(null); // "avatar" | "banner" | "description" | null
 
-  const { page, limit, params, totalPages, setTotalPages, nextPage, prevPage, goToPage, hasNextPage, hasPrevPage } =
-    usePagination();
+  const {
+    page,
+    limit,
+    params,
+    totalPages,
+    setTotalPages,
+    nextPage,
+    prevPage,
+    goToPage,
+    hasNextPage,
+    hasPrevPage,
+  } = usePagination();
   const [products, setProducts] = useState([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
 
@@ -38,8 +41,8 @@ export default function SellerProfilePage() {
     productService
       .getMyProducts(params)
       .then((res) => {
-        setProducts(res.data?.products || res.data || []);
-        setTotalPages(res.data?.totalPages || 1);
+        setProducts(res.data.data.products);
+        setTotalPages(res.data.data.pagination.totalPages);
       })
       .catch(() => {})
       .finally(() => setIsLoadingProducts(false));
@@ -68,7 +71,12 @@ export default function SellerProfilePage() {
         <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wide mb-4">
           Your products
         </h2>
-        <ProductGrid products={products} isLoading={isLoadingProducts} emptyTitle="No products yet" emptyDescription="Add products from the Manage Products page." />
+        <ProductGrid
+          products={products}
+          isLoading={isLoadingProducts}
+          emptyTitle="No products yet"
+          emptyDescription="Add products from the Manage Products page."
+        />
         <div className="mt-6">
           <Pagination
             page={page}
@@ -104,7 +112,6 @@ export default function SellerProfilePage() {
   );
 }
 
-
 function AvatarBannerModal({ type, isOpen, onClose, onSaved }) {
   const [file, setFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -113,9 +120,9 @@ function AvatarBannerModal({ type, isOpen, onClose, onSaved }) {
   const handleFileChange = (e) => {
     const selected = e.target.files?.[0];
     if (!selected) return;
-    const validation = validateImageFile(selected, 5);
-    if (!validation?.isValid) {
-      toast.error(validation?.message || "Please choose a valid image, under 5MB");
+    const errorMessage = validateImageFile(selected, 5);
+    if (errorMessage) {
+      toast.error(errorMessage);
       e.target.value = "";
       return;
     }
@@ -131,7 +138,7 @@ function AvatarBannerModal({ type, isOpen, onClose, onSaved }) {
       const res = isAvatar
         ? await sellerService.updateAvatar(formData)
         : await sellerService.updateBanner(formData);
-      const url = res.data?.[type] || res.data?.url;
+      const url = res.data.data[type];
       toast.success(`${isAvatar ? "Avatar" : "Banner"} updated`);
       onSaved(url);
       setFile(null);
@@ -144,14 +151,28 @@ function AvatarBannerModal({ type, isOpen, onClose, onSaved }) {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={isAvatar ? "Update avatar" : "Update banner"} size="sm">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={isAvatar ? "Update avatar" : "Update banner"}
+      size="sm"
+    >
       <div className="flex flex-col gap-4">
-        <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFileChange} />
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          onChange={handleFileChange}
+        />
         <div className="flex justify-end gap-2">
           <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
-          <Button variant="primary" isLoading={isSubmitting} disabled={!file} onClick={handleSave}>
+          <Button
+            variant="primary"
+            isLoading={isSubmitting}
+            disabled={!file}
+            onClick={handleSave}
+          >
             Save
           </Button>
         </div>
@@ -168,7 +189,7 @@ function DescriptionModal({ isOpen, onClose, seller, onSaved }) {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(sellerProfileUpdateSchema),
-    defaultValues: { description: seller?.description || "" },
+    defaultValues: { shopDescription: seller?.shopDescription || "" },
   });
 
   const onSubmit = async (data) => {
@@ -179,7 +200,9 @@ function DescriptionModal({ isOpen, onClose, seller, onSaved }) {
       onSaved(data);
       onClose();
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Couldn't update description");
+      toast.error(
+        err?.response?.data?.message || "Couldn't update description",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -192,9 +215,13 @@ function DescriptionModal({ isOpen, onClose, seller, onSaved }) {
           <textarea
             rows={4}
             className="w-full rounded-md border border-border bg-surface-raised text-sm text-text p-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary resize-none"
-            {...register("description")}
+            {...register("shopDescription")}
           />
-          {errors.description && <p className="text-xs text-error mt-1">{errors.description.message}</p>}
+          {errors.shopDescription && (
+            <p className="text-xs text-error mt-1">
+              {errors.shopDescription.message}
+            </p>
+          )}
         </div>
         <div className="flex justify-end gap-2">
           <Button type="button" variant="secondary" onClick={onClose}>
@@ -208,4 +235,3 @@ function DescriptionModal({ isOpen, onClose, seller, onSaved }) {
     </Modal>
   );
 }
-

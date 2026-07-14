@@ -72,7 +72,7 @@ function BasicInfoSection({ user, onSaved }) {
     setIsSubmitting(true);
     try {
       const res = await userService.updateProfile(data);
-      onSaved(res.data || data);
+      onSaved(res.data.data || data);
       toast.success("Profile updated");
     } catch (err) {
       toast.error(err?.response?.data?.message || "Couldn't update your profile");
@@ -106,7 +106,7 @@ function AddressList({ user, onChanged }) {
     setActioningId(address._id);
     try {
       const res = await userService.setDefaultAddress(address._id);
-      onChanged({ addresses: res.data?.addresses || res.data });
+      onChanged({ addresses: res.data.data.addresses || res.data.data });
     } catch (err) {
       toast.error(err?.response?.data?.message || "Couldn't set default address");
     } finally {
@@ -119,7 +119,7 @@ function AddressList({ user, onChanged }) {
     setActioningId(address._id);
     try {
       const res = await userService.deleteAddress(address._id);
-      onChanged({ addresses: res.data?.addresses || res.data });
+      onChanged({ addresses: res.data.data.addresses || res.data.data });
       toast.success("Address removed");
     } catch (err) {
       toast.error(err?.response?.data?.message || "Couldn't delete this address");
@@ -190,7 +190,7 @@ function AddressFormModal({ isOpen, onClose, onSaved }) {
     setIsSubmitting(true);
     try {
       const res = await userService.addAddress(data);
-      onSaved(res.data?.addresses || res.data);
+      onSaved(res.data.data.addresses || res.data.data);
       reset();
       toast.success("Address added");
     } catch (err) {

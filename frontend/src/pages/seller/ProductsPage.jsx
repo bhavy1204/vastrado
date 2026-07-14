@@ -26,12 +26,6 @@ import Loader from "@/components/common/Loader";
 import EmptyState from "@/components/common/EmptyState";
 import Pagination from "@/components/common/Pagination";
 
-/**
- * Seller ProductsPage — /seller/products
- * No standalone "add product" page exists in the page list, so creation
- * happens through a Modal here (and can also be triggered from
- * ShopHeader's onAddProduct on the seller's own ProfilePage).
- */
 export default function SellerProductsPage() {
   const {
     page,
@@ -57,8 +51,8 @@ export default function SellerProductsPage() {
     productService
       .getMyProducts(params)
       .then((res) => {
-        setProducts(res.data?.products || res.data || []);
-        setTotalPages(res.data?.totalPages || 1);
+        setProducts(res.data.data.products);
+        setTotalPages(res.data.data.pagination.totalPages);
       })
       .catch((err) =>
         toast.error(
@@ -98,7 +92,9 @@ export default function SellerProductsPage() {
   };
 
   const handleDelete = async (product) => {
-    if (!window.confirm(`Delete "${product.name}"? This can't be undone.`))
+    if (
+      !window.confirm(`Delete "${product.productName}"? This can't be undone.`)
+    )
       return;
     try {
       await productService.delete(product._id);
@@ -147,7 +143,7 @@ export default function SellerProductsPage() {
                 {product.images?.[0] && (
                   <img
                     src={product.images[0]}
-                    alt={product.name}
+                    alt={product.productName}
                     className="h-full w-full object-cover"
                   />
                 )}
@@ -155,7 +151,7 @@ export default function SellerProductsPage() {
 
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-text truncate">
-                  {product.name}
+                  {product.productName}
                 </p>
                 <p className="text-xs text-text-muted mt-0.5">
                   {formatPrice(product.discountedPrice || product.price)}
@@ -231,6 +227,18 @@ function ProductFormModal({ isOpen, onClose, product, onSaved }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageFiles, setImageFiles] = useState([]);
 
+  const defaultFormValues = {
+    productName: "",
+    price: "",
+    discountedPrice: "",
+    productType: "",
+    gender: "",
+    color: "",
+    brand: "",
+    productDescription: "",
+    variants: [{ size: "", quantity: 0 }],
+  };
+
   const {
     register,
     handleSubmit,
@@ -238,39 +246,21 @@ function ProductFormModal({ isOpen, onClose, product, onSaved }) {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(createProductSchema),
-    defaultValues: product || {
-      name: "",
-      price: "",
-      discountedPrice: "",
-      type: "",
-      gender: "",
-      description: "",
-    },
+    defaultValues: product || defaultFormValues,
   });
 
   useEffect(() => {
-    reset(
-      product || {
-        name: "",
-        price: "",
-        discountedPrice: "",
-        type: "",
-        gender: "",
-        description: "",
-      },
-    );
+    reset(product || defaultFormValues);
     setImageFiles([]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product, reset]);
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files || []);
     for (const file of files) {
-      const validation = validateImageFile(file, 5);
-      if (!validation?.isValid) {
-        toast.error(
-          validation?.message ||
-            "Please choose valid images (jpg/png/webp, under 5MB each)",
-        );
+      const errorMessage = validateImageFile(file, 5);
+      if (errorMessage) {
+        toast.error(errorMessage);
         e.target.value = "";
         return;
       }
@@ -293,9 +283,13 @@ function ProductFormModal({ isOpen, onClose, product, onSaved }) {
         toast.success("Product updated");
       } else {
         const formData = new FormData();
-        Object.entries(data).forEach(([key, value]) =>
-          formData.append(key, value),
-        );
+        Object.entries(data).forEach(([key, value]) => {
+          if (key === "variants") {
+            formData.append(key, JSON.stringify(value));
+          } else {
+            formData.append(key, value);
+          }
+        });
         imageFiles.forEach((file) => formData.append("images", file));
         await productService.create(formData);
         toast.success("Product added");
@@ -318,8 +312,8 @@ function ProductFormModal({ isOpen, onClose, product, onSaved }) {
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <Input
           label="Product name"
-          error={errors.name?.message}
-          {...register("name")}
+          error={errors.productName?.message}
+          {...register("productName")}
         />
 
         <div className="grid grid-cols-2 gap-3">
@@ -340,8 +334,8 @@ function ProductFormModal({ isOpen, onClose, product, onSaved }) {
         <div className="grid grid-cols-2 gap-3">
           <Select
             label="Category"
-            error={errors.type?.message}
-            {...register("type")}
+            error={errors.productType?.message}
+            {...register("productType")}
             options={PRODUCT_TYPES.map((t) => ({
               value: t,
               label: formatProductType(t),
@@ -355,6 +349,33 @@ function ProductFormModal({ isOpen, onClose, product, onSaved }) {
           />
         </div>
 
+        <div className="grid grid-cols-2 gap-3">
+          <Input
+            label="Color"
+            error={errors.color?.message}
+            {...register("color")}
+          />
+          <Input
+            label="Brand"
+            error={errors.brand?.message}
+            {...register("brand")}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <Input
+            label="Size"
+            error={errors.variants?.[0]?.size?.message}
+            {...register("variants.0.size")}
+          />
+          <Input
+            label="Quantity"
+            type="number"
+            error={errors.variants?.[0]?.quantity?.message}
+            {...register("variants.0.quantity")}
+          />
+        </div>
+
         <div>
           <label className="text-sm font-medium text-text block mb-1.5">
             Description
@@ -362,11 +383,11 @@ function ProductFormModal({ isOpen, onClose, product, onSaved }) {
           <textarea
             rows={3}
             className="w-full rounded-md border border-border bg-surface-raised text-sm text-text p-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary resize-none"
-            {...register("description")}
+            {...register("productDescription")}
           />
-          {errors.description && (
+          {errors.productDescription && (
             <p className="text-xs text-error mt-1">
-              {errors.description.message}
+              {errors.productDescription.message}
             </p>
           )}
         </div>
@@ -426,4 +447,3 @@ function Select({ label, error, options, ...props }) {
     </div>
   );
 }
-

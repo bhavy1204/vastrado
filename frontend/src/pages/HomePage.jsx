@@ -244,7 +244,7 @@ function FeaturedProducts() {
     productService
       .getAll({ sort: "newest", limit: 8, page: 1 })
       .then((res) => {
-        if (!isCancelled) setProducts(res.data?.products || res.data || []);
+        if (!isCancelled) setProducts(res.data?.data.products);
       })
       .catch((err) =>
         toast.error(err?.response?.data?.message || "Couldn't load products"),
@@ -289,7 +289,7 @@ function FAQPreview() {
       .getAllFAQs()
       .then((res) => {
         if (!isCancelled)
-          setFaqs((res.data?.faqs || res.data || []).slice(0, 5));
+          setFaqs(res.data.data.slice(0, 5));
       })
       .catch(() => {});
     return () => {

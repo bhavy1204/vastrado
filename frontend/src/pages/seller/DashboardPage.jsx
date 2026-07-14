@@ -24,7 +24,7 @@ export default function SellerDashboardPage() {
     sellerService
       .getDashboard()
       .then((res) => {
-        if (!isCancelled) setStats(res.data);
+        if (!isCancelled) setStats(res.data.data);
       })
       .catch((err) => {
         toast.error(err?.response?.data?.message || "Couldn't load dashboard data");

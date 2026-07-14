@@ -45,8 +45,8 @@ export default function ProductDetailPage() {
       .getBySlug(slug)
       .then((res) => {
         if (!isCancelled) {
-          setProduct(res.data);
-          setIsWishlisted(!!res.data?.isWishlisted);
+          setProduct(res.data.data);
+          setIsWishlisted(!!res.data.data.isWishlisted);
         }
       })
       .catch((err) => {
@@ -70,8 +70,8 @@ export default function ProductDetailPage() {
     reviewService
       .getProductReviews(product._id, params)
       .then((res) => {
-        setReviews(res.data?.reviews || res.data || []);
-        setTotalPages(res.data?.totalPages || 1);
+        setReviews(res.data.data.reviews);
+        setTotalPages(res.data.data.pagination.totalPages);
       })
       .catch(() => {})
       .finally(() => setIsLoadingReviews(false));
@@ -128,7 +128,7 @@ export default function ProductDetailPage() {
     );
   }
 
-  const { name, images = [], price, discountedPrice, description, type, gender, seller, variants } = product;
+  const { name, images = [], price, discountedPrice, productDescription, type, gender, seller, variants } = product;
   const hasDiscount = discountedPrice && discountedPrice < price;
 
   return (
@@ -229,7 +229,7 @@ export default function ProductDetailPage() {
         </Button>
       </div>
 
-      {description && <p className="text-sm text-text-secondary leading-relaxed">{description}</p>}
+      {productDescription && <p className="text-sm text-text-secondary leading-relaxed">{productDescription}</p>}
 
       {/* Reviews */}
       <div id="reviews" className="pt-4 border-t border-border flex flex-col gap-5">
