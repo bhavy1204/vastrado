@@ -1,5 +1,5 @@
 import { Funnel, X } from "@phosphor-icons/react";
-import { PRODUCT_TYPES, GENDERS, SORT_OPTIONS } from "@/lib/constants";
+import { PRODUCT_TYPES, GENDERS, SORT_OPTIONS } from "@/lib/constant";
 import { formatProductType, capitalize } from "@/lib/formatters";
 
 /**

@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Star } from "@phosphor-icons/react";
 import toast from "react-hot-toast";
 import { reviewSchema } from "@/lib/validators";
-import { reviewService } from "@/api";
+import { reviewService } from "@/api/index";
 import Button from "@/components/common/Button";
 
 /**

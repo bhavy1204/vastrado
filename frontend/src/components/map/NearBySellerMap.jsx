@@ -3,9 +3,9 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import { Link } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import useGeolocation from "../../utils/useGeoLocation.js";
-import { sellerService } from "../../api/services/seller.js";
-import { NEARBY_DEFAULT_RADIUS_KM } from "@/lib/constants";
+import useGeolocation from "@/lib/useGeoLocation.js";
+import { sellerService } from "@/api/index.js";
+import { NEARBY_DEFAULT_RADIUS_KM } from "@/lib/constant";
 import Loader from "../common/Loader.jsx";
 import EmptyState from "../common/EmptyState.jsx";
 import { MapPin } from "@phosphor-icons/react";
@@ -59,7 +59,9 @@ export default function NearbySellersMap({ radiusKm = NEARBY_DEFAULT_RADIUS_KM }
     sellerService
       .getNearbySellers({ lat: coords.lat, lng: coords.lng, radiusKm })
       .then((res) => {
-        if (!isCancelled) setSellers(res.data?.sellers || res.data || []);
+        if (isCancelled) return;
+        const payload = res.data?.sellers ?? res.data?.data ?? res.data;
+        setSellers(Array.isArray(payload) ? payload : []);
       })
       .catch((err) => {
         if (!isCancelled) setFetchError(err?.response?.data?.message || "Couldn't load nearby shops");
@@ -67,6 +69,7 @@ export default function NearbySellersMap({ radiusKm = NEARBY_DEFAULT_RADIUS_KM }
       .finally(() => {
         if (!isCancelled) setIsLoading(false);
       });
+      
 
     return () => {
       isCancelled = true;

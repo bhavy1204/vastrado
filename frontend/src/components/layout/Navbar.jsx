@@ -10,8 +10,8 @@ import {
   CaretDown,
 } from "@phosphor-icons/react";
 import useAuthStore from "@/store/useAuthStore";
-import { userService } from "@/api";
-import { sellerService } from "@/api";
+import { userService } from "@/api/index";
+import { sellerService } from "@/api/index";
 import toast from "react-hot-toast";
 
 /**

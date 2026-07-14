@@ -19,7 +19,7 @@ export default function ProductGrid({
     return <Loader className="py-16" label="Loading products..." />;
   }
 
-  if (!products || products.length === 0) {
+  if (!Array.isArray(products) || products.length === 0) {
     return (
       <EmptyState
         icon={<MagnifyingGlass size={26} weight="duotone" />}
