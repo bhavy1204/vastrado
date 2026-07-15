@@ -24,8 +24,8 @@ router.get("/dashboard/stats", getDashboardStats)
 
 router.get("/sellers", validatePaginationQuery, getAllSellers)
 router.get("/sellers/:id", validateObjectId, getSellerById)
-router.patch("/sellers/:id/approve", validateObjectId, approveSeller)
-router.patch("/sellers/:id/suspend", validateObjectId, suspendSeller)
+router.patch("/sellers/:id/approve", approveSeller)
+router.patch("/sellers/:id/suspend", suspendSeller)
 
 
 router.get("/users", getAllUsers)

@@ -33,9 +33,9 @@ const calcExpiresAt = (days) => {
 
 const createBannerRequest = asyncHandler(async (req, res) => {
 
-    const seller = await Seller.findById(req.user?._id).select("isApproved subscription");
+    const seller = await Seller.findById(req.user?._id).select("status subscription");
 
-    if (!seller.isApproved) {
+    if (seller.status === "pending" || seller.status === "suspended") {
         throw new APIError(403, "Your account is pending admin approval");
     }
 

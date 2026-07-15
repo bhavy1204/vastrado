@@ -148,7 +148,7 @@ const resendSellerOTP = asyncHandler(async (req, res) => {
 
     const seller = await Seller.findOne({ email });
 
-    if (!seller) 
+    if (!seller)
         throw new APIError(404, "No account found with this email");
 
     if (purpose === "email-verification" && seller.isEmailVerified) {
@@ -187,7 +187,7 @@ const loginSeller = asyncHandler(async (req, res) => {
         isEmail ? { email: identifier } : { username: identifier }
     ).select("+password +refreshToken");
 
-    if (!seller) 
+    if (!seller)
         throw new APIError(401, "Invalid credentials");
 
     if (seller.isOAuth) {
@@ -198,13 +198,13 @@ const loginSeller = asyncHandler(async (req, res) => {
         throw new APIError(403, "Please verify your email before logging in.");
     }
 
-    if (!seller.isApproved) {
+    if (seller.status === "pending" || seller.status === "suspended") {
         throw new APIError(403, "Your account is pending admin approval.");
     }
 
     const isPasswordValid = await seller.isPasswordCorrect(password);
 
-    if (!isPasswordValid) 
+    if (!isPasswordValid)
         throw new APIError(401, "Invalid credentials");
 
     const { accessToken, refreshToken } = await generateTokens(seller);
@@ -317,7 +317,7 @@ const resetSellerPassword = asyncHandler(async (req, res) => {
     }
 
     const seller = await Seller.findOne({ email });
-    if (!seller) 
+    if (!seller)
         throw new APIError(404, "Seller not found");
 
 
@@ -348,7 +348,7 @@ const changeSellerPassword = asyncHandler(async (req, res) => {
     const isPasswordValid = await seller.isPasswordCorrect(currentPassword);
 
     if (!isPasswordValid)
-         throw new APIError(401, "Current password is incorrect");
+        throw new APIError(401, "Current password is incorrect");
 
     if (currentPassword === newPassword) {
         throw new APIError(400, "New password must be different from current password");
@@ -369,11 +369,11 @@ const changeSellerPassword = asyncHandler(async (req, res) => {
 const getSellerPublicProfile = asyncHandler(async (req, res) => {
     const { slug } = req.params;
 
-    const seller = await Seller.findOne({ slug, isApproved: true })
+    const seller = await Seller.findOne({ slug, status: "approved" })
         .select("fullName shopName shopDescription shopCategory avatar banner city state whatsappNumber slug averageRating")
         .lean();
 
-    if (!seller) 
+    if (!seller)
         throw new APIError(404, "Shop not found");
 
     const products = await Product.find({ sellerId: seller._id, isActive: true })
@@ -520,7 +520,7 @@ const getNearbySellers = asyncHandler(async (req, res) => {
     );
 
     const sellers = await Seller.find({
-        isApproved: true,
+        status:"approved",
         location: {
             $nearSphere: {
                 $geometry: {

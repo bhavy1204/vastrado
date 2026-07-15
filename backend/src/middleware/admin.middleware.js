@@ -3,6 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler.js"
 import { APIError } from "../utils/apiError.js"
 
 export const verifyAdmin = asyncHandler(async (req, res, next) => {
+    console.log("ADMIN REACHED TO VERIFY ADMIN");
     const id = req.user?._id;
 
     const user = await User.findById(id).select("role");
@@ -13,6 +14,6 @@ export const verifyAdmin = asyncHandler(async (req, res, next) => {
     if (user.role !== "admin") {
         throw new APIError(403, "Admin access only")
     }
-
+    console.log("ADMIN REACHED TILL END OF VERIFY ADMIN");
     next();
 });

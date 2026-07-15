@@ -50,9 +50,9 @@ const buildSortOption = (sort) => {
 // ─── CREATE PRODUCT ───────────────────────────────────────────────────────────
 
 const createProduct = asyncHandler(async (req, res) => {
-    const seller = await Seller.findById(req.user._id).select("subscription isApproved");
+    const seller = await Seller.findById(req.user._id).select("subscription status");
 
-    if (!seller.isApproved) {
+    if (seller.status === "suspended" || seller.status === "pending") {
         throw new APIError(403, "Your account is pending admin approval");
     }
 
@@ -230,7 +230,7 @@ const getSellerProducts = asyncHandler(async (req, res) => {
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 12));
     const skip = (page - 1) * limit;
 
-    const seller = await Seller.findOne({ _id: sellerId, isApproved: true }).select("_id");
+    const seller = await Seller.findOne({ _id: sellerId, status: "approved" }).select("_id");
     if (!seller) throw new APIError(404, "Shop not found");
 
     const [products, total] = await Promise.all([
@@ -395,7 +395,7 @@ const searchProducts = asyncHandler(async (req, res) => {
     // find sellers whose shopName matches — for "xyz store black tshirt" type queries
     const matchingSellers = await Seller.find({
         shopName: searchRegex,
-        isApproved: true
+        status: "approved"
     }).select("_id").lean();
 
     const sellerIds = matchingSellers.map((s) => s._id);

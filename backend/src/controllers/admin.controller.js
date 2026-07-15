@@ -56,16 +56,15 @@ const approveSeller = asyncHandler(async (req, res) => {
         throw new APIError(404, "Seller not found");
     }
 
-    if (seller.isApproved) {
+    if (seller.status === "approved") {
         throw new APIError(400, "Seller is already approved");
     }
-
-    seller.isApproved = true;
+    seller.status = "approved";
 
     await seller.save();
 
     return res.status(200).json(
-        new APIResponse(200, { isApproved: seller.isApproved }, "Seller approved successfully")
+        new APIResponse(200, { status: seller.status }, "Seller approved successfully")
     );
 })
 
@@ -77,15 +76,15 @@ const suspendSeller = asyncHandler(async (req, res) => {
         throw new APIError(404, "Seller not found");
     }
 
-    if (!seller.isApproved) {
+    if (seller.status === "suspended" || seller.status === "pending") {
         throw new APIError(400, "Seller is already suspended or not yet approved");
     }
 
-    seller.isApproved = false;
+    seller.status = "suspended";
     await seller.save();
 
     return res.status(200).json(
-        new APIResponse(200, { isApproved: seller.isApproved }, "Seller suspended successfully")
+        new APIResponse(200, { status: seller.status }, "Seller suspended successfully")
     );
 });
 
@@ -178,7 +177,7 @@ const getDashboardStats = asyncHandler(async (req, res) => {
     ] = await Promise.all([
         User.countDocuments(),
         Seller.countDocuments(),
-        Seller.countDocuments({ isApproved: false }),
+        Seller.countDocuments({ "status":"pending" }),
         Seller.countDocuments({ "subscription.status": "pending" }),
         Product.countDocuments()
     ]);

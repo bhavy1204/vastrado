@@ -30,7 +30,7 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
     }
 
     const { _id, type } = decoded;
-
+    console.log("THIS IS TYPE OF ADMIN >>", type);
     if (type === "user") {
         const user = await User.findById(_id).select("-password -refreshToken -isOAuth -authProvider -providerId ")
 

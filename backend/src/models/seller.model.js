@@ -57,9 +57,10 @@ const sellerSchema = new mongoose.Schema({
             return !this.isOAuth;
         }
     },
-    isApproved: {
-        type: Boolean,
-        default: false
+    status: {
+        type: String,
+        enum: ["pending", "approved", "suspended"],
+        default: "pending"
     },
     refreshToken: {
         type: String,
