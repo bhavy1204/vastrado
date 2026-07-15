@@ -63,10 +63,22 @@ export default function AdminFAQsPage() {
   };
 
   return (
-    <div className="flex flex-col gap-5 p-4 sm:p-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-lg font-bold text-text">FAQs</h1>
-        <Button variant="primary" size="sm" leftIcon={<Plus size={16} weight="bold" />} onClick={openCreateModal}>
+    <div className="flex flex-col gap-6 p-5 sm:p-7">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-text">
+            Frequently Asked Questions
+          </h1>
+          <p className="mt-1 text-sm text-text-muted">
+            Manage the questions shown to customers on your marketplace.
+          </p>
+        </div>
+
+        <Button
+          variant="primary"
+          leftIcon={<Plus size={18} weight="bold" />}
+          onClick={openCreateModal}
+        >
           Add FAQ
         </Button>
       </div>
@@ -75,37 +87,57 @@ export default function AdminFAQsPage() {
         <Loader className="py-16" label="Loading FAQs..." />
       ) : faqs.length === 0 ? (
         <EmptyState
-          icon={<Question size={26} weight="duotone" />}
-          title="No FAQs yet"
+          icon={<Question size={30} weight="duotone" />}
+          title="No FAQs added yet"
           actionLabel="Add FAQ"
           onAction={openCreateModal}
         />
       ) : (
-        <div className="rounded-md border border-border bg-surface-raised divide-y divide-border">
+        <div className="grid gap-5">
           {faqs.map((faq) => (
-            <div key={faq._id} className="flex items-start gap-3 p-4">
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-text">{faq.question}</p>
-                <p className="text-sm text-text-secondary mt-1 leading-relaxed">{faq.answer}</p>
-              </div>
-              <div className="flex items-center gap-1 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => openEditModal(faq)}
-                  aria-label="Edit"
-                  className="text-text-muted hover:text-primary p-1.5"
-                >
-                  <PencilSimple size={16} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDelete(faq)}
-                  disabled={deletingId === faq._id}
-                  aria-label="Delete"
-                  className="text-text-muted hover:text-error p-1.5 disabled:opacity-50"
-                >
-                  <Trash size={16} />
-                </button>
+            <div
+              key={faq._id}
+              className="rounded-xl border border-border bg-surface-raised p-6 transition-all hover:border-primary/25 hover:shadow-md"
+            >
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      <Question size={20} weight="fill" />
+                    </div>
+
+                    <div className="min-w-0">
+                      <h2 className="text-lg font-semibold text-text leading-snug">
+                        {faq.question}
+                      </h2>
+
+                      <p className="mt-3 text-sm leading-7 text-text-secondary whitespace-pre-line">
+                        {faq.answer}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex shrink-0 items-center gap-2 self-end lg:self-start">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    leftIcon={<PencilSimple size={16} />}
+                    onClick={() => openEditModal(faq)}
+                  >
+                    Edit
+                  </Button>
+
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    leftIcon={<Trash size={16} />}
+                    isLoading={deletingId === faq._id}
+                    onClick={() => handleDelete(faq)}
+                  >
+                    Delete
+                  </Button>
+                </div>
               </div>
             </div>
           ))}

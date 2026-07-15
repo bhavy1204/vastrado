@@ -109,7 +109,7 @@ export default function SellerRegisterPage() {
         <div className="text-center mb-6">
           <h1 className="text-xl font-bold text-text">Register your shop</h1>
           <p className="text-sm text-text-muted mt-1">
-            List your shop on ShopNearby for ₹500/month
+            List your shop on ClothMarket for ₹500/month
           </p>
         </div>
 

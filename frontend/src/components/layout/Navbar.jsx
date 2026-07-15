@@ -13,6 +13,7 @@ import useAuthStore from "@/store/useAuthStore";
 import { userService } from "@/api/index";
 import { sellerService } from "@/api/index";
 import toast from "react-hot-toast";
+import Input from "../common/Input.jsx";
 
 /**
  * Navbar
@@ -62,24 +63,23 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-40 bg-surface-raised border-b border-border">
       <div className="max-w-7xl mx-auto flex items-center gap-4 h-16 px-4 sm:px-6">
-        <Link to="/" className="text-lg font-bold text-primary shrink-0 tracking-tight">
-          ShopNearby
+        <Link
+          to="/"
+          className="text-lg font-bold text-primary shrink-0 tracking-tight"
+        >
+          ClothMarket
         </Link>
 
         <form
           onSubmit={handleSearchSubmit}
-          className="flex-1 max-w-md hidden sm:flex items-center relative"
+          className="w-full"
         >
-          <MagnifyingGlass
-            size={16}
-            className="absolute left-3 text-text-muted pointer-events-none"
-          />
-          <input
+          <Input
             type="search"
+            leftIcon={<MagnifyingGlass size={18} />}
+            placeholder="Search products, shops..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search products, shops..."
-            className="w-full h-10 pl-9 pr-3 rounded-md bg-surface border border-border text-sm text-text placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
           />
         </form>
 
@@ -99,7 +99,11 @@ export default function Navbar() {
             aria-haspopup="menu"
             aria-expanded={isMenuOpen}
           >
-            <UserCircle size={26} className="text-text-secondary" weight={actorType ? "fill" : "regular"} />
+            <UserCircle
+              size={26}
+              className="text-text-secondary"
+              weight={actorType ? "fill" : "regular"}
+            />
             <CaretDown size={12} className="text-text-muted hidden sm:block" />
           </button>
 
@@ -121,10 +125,18 @@ export default function Navbar() {
 
               {actorType === "user" && !isAdmin() && (
                 <>
-                  <MenuLink to="/profile" icon={<UserCircle size={16} />} onClick={() => setIsMenuOpen(false)}>
+                  <MenuLink
+                    to="/profile"
+                    icon={<UserCircle size={16} />}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
                     Profile
                   </MenuLink>
-                  <MenuLink to="/wishlist" icon={<Heart size={16} />} onClick={() => setIsMenuOpen(false)}>
+                  <MenuLink
+                    to="/wishlist"
+                    icon={<Heart size={16} />}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
                     Wishlist
                   </MenuLink>
                   <button
@@ -139,10 +151,18 @@ export default function Navbar() {
 
               {actorType === "seller" && (
                 <>
-                  <MenuLink to="/seller/profile" icon={<Storefront size={16} />} onClick={() => setIsMenuOpen(false)}>
+                  <MenuLink
+                    to="/seller/profile"
+                    icon={<Storefront size={16} />}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
                     My shop
                   </MenuLink>
-                  <MenuLink to="/seller/dashboard" icon={<SquaresFour size={16} />} onClick={() => setIsMenuOpen(false)}>
+                  <MenuLink
+                    to="/seller/dashboard"
+                    icon={<SquaresFour size={16} />}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
                     Dashboard
                   </MenuLink>
                   <button
@@ -157,7 +177,11 @@ export default function Navbar() {
 
               {actorType === "user" && isAdmin() && (
                 <>
-                  <MenuLink to="/admin/dashboard" icon={<SquaresFour size={16} />} onClick={() => setIsMenuOpen(false)}>
+                  <MenuLink
+                    to="/admin/dashboard"
+                    icon={<SquaresFour size={16} />}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
                     Admin dashboard
                   </MenuLink>
                   <button
@@ -189,4 +213,3 @@ function MenuLink({ to, icon, children, onClick }) {
     </Link>
   );
 }
-

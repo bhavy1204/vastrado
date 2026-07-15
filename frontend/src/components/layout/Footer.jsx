@@ -12,7 +12,7 @@ export default function Footer() {
     <footer className="bg-surface border-t border-border mt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 grid grid-cols-2 sm:grid-cols-4 gap-8">
         <div className="col-span-2 sm:col-span-1">
-          <p className="text-lg font-bold text-primary mb-2">ShopNearby</p>
+          <p className="text-lg font-bold text-primary mb-2">clothMarkets</p>
           <p className="text-sm text-text-muted leading-relaxed">
             Discover local clothing shops near you and enquire directly on
             WhatsApp.
@@ -39,7 +39,7 @@ export default function Footer() {
           <p className="text-sm font-semibold text-text mb-3">Get in touch</p>
           <div className="flex items-center gap-3">
             <a
-              href="mailto:support@shopnearby.in"
+              href="mailto:support@clothmarkets.in"
               aria-label="Email"
               className="text-text-muted hover:text-primary"
             >
@@ -69,7 +69,7 @@ export default function Footer() {
 
       <div className="border-t border-border py-4 px-4 sm:px-6">
         <p className="text-xs text-text-muted text-center">
-          © {year} ShopNearby. All rights reserved.
+          © {year} clothMarket. All rights reserved.
         </p>
       </div>
     </footer>

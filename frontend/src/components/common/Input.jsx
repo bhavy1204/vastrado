@@ -31,15 +31,25 @@ const Input = forwardRef(function Input({
       {label && (
         <label htmlFor={inputId} className="text-sm font-medium text-text">
           {label}
-          {required && <span className="text-error ml-0.5">*</span>}
+          {required && <span className="ml-0.5 text-error">*</span>}
         </label>
       )}
 
-      <div className="relative flex items-center">
+      <div
+        className={[
+          "flex h-11 overflow-hidden rounded-lg border bg-surface-raised transition-colors",
+
+          error
+            ? "border-error-border"
+            : "border-border focus-within:border-primary",
+
+          "focus-within:ring-2 focus-within:ring-primary/20",
+        ].join(" ")}
+      >
         {leftIcon && (
-          <span className="absolute left-3 flex items-center text-text-muted pointer-events-none">
+          <div className="flex w-11 shrink-0 items-center justify-center border-r border-border text-text-muted">
             {leftIcon}
-          </span>
+          </div>
         )}
 
         <input
@@ -55,15 +65,10 @@ const Input = forwardRef(function Input({
                 : undefined
           }
           className={[
-            "w-full h-11 rounded-md bg-surface-raised border text-text text-sm",
-            "placeholder:text-text-muted transition-colors duration-150",
-            "focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-bg",
-            leftIcon ? "pl-10" : "pl-3.5",
-            isPassword ? "pr-10" : "pr-3.5",
-            error
-              ? "border-error-border focus:ring-error"
-              : "border-border focus:ring-primary focus:border-primary",
-            "disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-surface",
+            "flex-1 bg-transparent px-4 text-sm text-text outline-none placeholder:text-text-muted",
+
+            isPassword ? "pr-0" : "",
+
             className,
           ].join(" ")}
           {...props}
@@ -74,7 +79,7 @@ const Input = forwardRef(function Input({
             type="button"
             tabIndex={-1}
             onClick={() => setShowPassword((prev) => !prev)}
-            className="absolute right-3 flex items-center text-text-muted hover:text-text-secondary"
+            className="flex w-11 shrink-0 items-center justify-center border-l border-border text-text-muted hover:text-text"
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
             {showPassword ? <EyeSlash size={18} /> : <Eye size={18} />}

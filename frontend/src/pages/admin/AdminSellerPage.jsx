@@ -100,12 +100,12 @@ export default function AdminSellersPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-5 sm:p-7">
+    <div className="flex flex-col gap-6 p-12 sm:p-7 ">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-text">Seller Management</h1>
           <p className="mt-1 text-sm text-text-muted">
-            Review and manage all registered sellers.
+            Review, approve and manage seller accounts.
           </p>
         </div>
 
@@ -126,95 +126,99 @@ export default function AdminSellersPage() {
           title="No sellers found"
         />
       ) : (
-        <div className="grid gap-5">
-          {sellers.map((seller) => (
-            <div
-              key={seller._id}
-              className="rounded-xl border border-border bg-surface-raised p-6 transition-all hover:border-primary/25 hover:shadow-sm"
-            >
-              <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-                <div className="flex items-start gap-4">
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary/10 text-lg font-bold text-primary">
-                    {seller.shopName?.charAt(0)?.toUpperCase()}
-                  </div>
+        <div className="grid gap-5 p-5">
+          {sellers.map((seller) => {
+            const statusColors = {
+              approved: "bg-green-500/10 text-green-600",
+              pending: "bg-yellow-500/10 text-yellow-600",
+              suspended: "bg-red-500/10 text-red-600",
+            };
 
-                  <div className="space-y-3">
-                    <div>
-                      <h2 className="text-lg font-semibold text-text">
-                        {seller.shopName}
-                      </h2>
-
-                      <p className="text-sm text-text-secondary">
-                        {seller.email}
-                      </p>
+            return (
+              <div
+                key={seller._id}
+                className="rounded-xl border border-border bg-surface-raised p-6 transition-all hover:border-primary/25 hover:shadow-md mt-6"
+              >
+                <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between ">
+                  {/* Left */}
+                  <div className="flex items-start gap-4">
+                    <div className="h-14 w-14 shrink-0 overflow-hidden rounded-full border border-border bg-surface">
+                      <img
+                        src={seller.avatar}
+                        alt={seller.shopName}
+                        className="h-full w-full object-cover"
+                      />
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-3 text-sm">
-                      <SubscriptionStatusBadge
-                        status={seller.subscriptionStatus}
-                      />
+                    <div className="space-y-3">
+                      <div>
+                        <h2 className="text-lg font-semibold text-text">
+                          {seller.shopName}
+                        </h2>
 
-                      <div className="flex items-center gap-3">
-                        <span className="text-sm font-medium text-text">
-                          Approved
-                        </span>
+                        <p className="text-sm text-text-secondary">
+                          {seller.email}
+                        </p>
+                      </div>
 
-                        <button
-                          disabled={actioningId === seller._id}
-                          onClick={() =>
-                            seller.isApproved
-                              ? handleSuspend(seller)
-                              : handleApprove(seller)
-                          }
-                          className={`relative h-7 w-12 rounded-full transition-colors ${
-                            seller.isApproved ? "bg-primary" : "bg-border"
-                          } ${
-                            actioningId === seller._id
-                              ? "opacity-60 cursor-not-allowed"
-                              : "cursor-pointer"
+                      <div className="flex flex-wrap items-center gap-3">
+                        <SubscriptionStatusBadge
+                          status={seller.subscriptionStatus}
+                        />
+
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${
+                            statusColors[seller.status] || "bg-border text-text"
                           }`}
                         >
-                          <span
-                            className={`absolute top-1 h-5 w-5 rounded-full bg-white transition-transform ${
-                              seller.isApproved
-                                ? "translate-x-6"
-                                : "translate-x-1"
-                            }`}
-                          />
-                        </button>
+                          {seller.status}
+                        </span>
                       </div>
-                    </div>
 
-                    <p className="text-sm text-text-muted">
-                      Joined {formatDate(seller.createdAt)}
-                    </p>
+                      <p className="text-sm text-text-muted">
+                        Joined {formatDate(seller.createdAt)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Right */}
+                  <div className="flex flex-col items-stretch gap-3 w-full lg:w-56">
+                    <label className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+                      Seller Status
+                    </label>
+
+                    <select
+                      value={seller.status}
+                      disabled={actioningId === seller._id}
+                      onChange={(e) => {
+                        const status = e.target.value;
+
+                        if (status === seller.status) return;
+
+                        if (status === "approved") {
+                          handleApprove(seller);
+                        } else if (status === "suspended") {
+                          handleSuspend(seller);
+                        }
+                        // pending endpoint can be added later
+                      }}
+                      className="h-11 rounded-lg border border-border bg-background px-3 text-sm text-text focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="approved">Approved</option>
+                      <option value="suspended">Suspended</option>
+                    </select>
+
+                    {actioningId === seller._id && (
+                      <p className="text-xs text-text-muted">
+                        Updating seller...
+                      </p>
+                    )}
                   </div>
                 </div>
-
-                <div className="flex items-center gap-3">
-                  {seller.isApproved ? (
-                    <Button
-                      variant="secondary"
-                      leftIcon={<Prohibit size={16} />}
-                      isLoading={actioningId === seller._id}
-                      onClick={() => handleSuspend(seller)}
-                    >
-                      Suspend Seller
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="primary"
-                      leftIcon={<CheckCircle size={16} />}
-                      isLoading={actioningId === seller._id}
-                      onClick={() => handleApprove(seller)}
-                    >
-                      Approve Seller
-                    </Button>
-                  )}
-                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

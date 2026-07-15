@@ -96,7 +96,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-6">
           <h1 className="text-xl font-bold text-text">Welcome back</h1>
-          <p className="text-sm text-text-muted mt-1">Log in to continue to ShopNearby</p>
+          <p className="text-sm text-text-muted mt-1">Log in to continue to ClothMarket</p>
         </div>
 
         <div className="flex rounded-md bg-surface border border-border p-1 mb-6">

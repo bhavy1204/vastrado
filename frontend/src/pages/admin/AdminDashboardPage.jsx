@@ -24,7 +24,11 @@ export default function AdminDashboardPage() {
       .then((res) => {
         if (!isCancelled) setStats(res.data?.data);
       })
-      .catch((err) => toast.error(err?.response?.data?.message || "Couldn't load dashboard stats"))
+      .catch((err) =>
+        toast.error(
+          err?.response?.data?.message || "Couldn't load dashboard stats",
+        ),
+      )
       .finally(() => {
         if (!isCancelled) setIsLoading(false);
       });
@@ -38,14 +42,38 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 p-4 sm:p-6">
-      <h1 className="text-lg font-bold text-text">Admin dashboard</h1>
+    <div className="flex flex-col gap-8 p-5 sm:p-7">
+      <div>
+        <h1 className="text-3xl font-bold text-text">Dashboard</h1>
+        <p className="mt-2 text-sm text-text-muted">
+          Welcome back. Here's an overview of your marketplace.
+        </p>
+      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={<Storefront size={18} />} label="Total sellers" value={stats?.totalSellers ?? "—"} />
-        <StatCard icon={<Users size={18} />} label="Total users" value={stats?.totalUsers ?? "—"} />
-        <StatCard icon={<CreditCard size={18} />} label="Active subscriptions" value={stats?.activeSubscriptions ?? "—"} />
-        <StatCard icon={<Image size={18} />} label="Pending banners" value={stats?.pendingBanners ?? "—"} />
+      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          icon={<Storefront size={24} weight="duotone" />}
+          label="Total Sellers"
+          value={stats?.totalSellers ?? "—"}
+        />
+
+        <StatCard
+          icon={<Users size={24} weight="duotone" />}
+          label="Total Users"
+          value={stats?.totalUsers ?? "—"}
+        />
+
+        <StatCard
+          icon={<CreditCard size={24} weight="duotone" />}
+          label="Active Subscriptions"
+          value={stats?.activeSubscriptions ?? "—"}
+        />
+
+        <StatCard
+          icon={<Image size={24} weight="duotone" />}
+          label="Pending Banners"
+          value={stats?.pendingBanners ?? "—"}
+        />
       </div>
     </div>
   );
@@ -53,15 +81,18 @@ export default function AdminDashboardPage() {
 
 function StatCard({ icon, label, value }) {
   return (
-    <div className="rounded-md border border-border bg-surface-raised p-4 flex items-center gap-3">
-      <div className="h-10 w-10 rounded-full bg-primary-subtle text-primary flex items-center justify-center shrink-0">
-        {icon}
+    <div className="group rounded-2xl border border-border bg-surface-raised p-6 transition-all duration-200 hover:-translate-y-1 hover:border-primary/20 hover:shadow-lg">
+      <div className="flex items-start justify-between">
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+          {icon}
+        </div>
       </div>
-      <div>
-        <p className="text-xl font-bold text-text leading-none">{value}</p>
-        <p className="text-xs text-text-muted mt-1">{label}</p>
+
+      <div className="mt-8">
+        <p className="text-3xl font-bold tracking-tight text-text">{value}</p>
+
+        <p className="mt-2 text-sm text-text-muted">{label}</p>
       </div>
     </div>
   );
 }
-

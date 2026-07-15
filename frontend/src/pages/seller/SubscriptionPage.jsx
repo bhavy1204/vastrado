@@ -73,7 +73,7 @@ export default function SellerSubscriptionPage() {
         amount: order.amount,
         currency: order.currency || "INR",
         order_id: order.orderId,
-        name: "ShopNearby",
+        name: "ClothMarket",
         description: "Monthly seller subscription",
         prefill: { name: seller?.shopName, email: seller?.email },
         theme: { color: "#C0622A" },

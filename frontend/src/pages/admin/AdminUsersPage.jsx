@@ -8,7 +8,7 @@ import { formatDate } from "@/lib/formatters";
 import Loader from "@/components/common/Loader";
 import EmptyState from "@/components/common/EmptyState";
 import Pagination from "@/components/common/Pagination";
-
+import Button from "@/components/common/Button";
 /**
  * Admin UsersPage — /admin/users
  * Search input tries getUserByEmail for an exact match when it looks like
@@ -81,71 +81,91 @@ export default function AdminUsersPage() {
     }
   };
 
-  return (
-    <div className="flex flex-col gap-5 p-4 sm:p-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-lg font-bold text-text">Users</h1>
-        <input
-          type="search"
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          placeholder="Search by exact email..."
-          className="h-9 w-64 max-w-full rounded-md border border-border bg-surface-raised text-sm text-text px-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-        />
-      </div>
+ return (
+   <div className="flex flex-col gap-6 p-5 sm:p-7">
+     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+       <div>
+         <h1 className="text-2xl font-bold text-text">User Management</h1>
+         <p className="mt-1 text-sm text-text-muted">
+           View and manage registered users.
+         </p>
+       </div>
 
-      {isLoading ? (
-        <Loader className="py-16" label="Loading users..." />
-      ) : users.length === 0 ? (
-        <EmptyState icon={<Users size={26} weight="duotone" />} title="No users found" />
-      ) : (
-        <div className="rounded-md border border-border bg-surface-raised overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border text-left text-xs text-text-muted uppercase tracking-wide">
-                <th className="px-4 py-3 font-medium">Name</th>
-                <th className="px-4 py-3 font-medium">Email</th>
-                <th className="px-4 py-3 font-medium">Joined</th>
-                <th className="px-4 py-3 font-medium text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => (
-                <tr key={user._id} className="border-b border-border last:border-b-0">
-                  <td className="px-4 py-3 font-medium text-text">{user.fullName}</td>
-                  <td className="px-4 py-3 text-text-secondary">{user.email}</td>
-                  <td className="px-4 py-3 text-text-muted">{formatDate(user.createdAt)}</td>
-                  <td className="px-4 py-3 text-right">
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(user)}
-                      disabled={deletingId === user._id}
-                      aria-label="Delete user"
-                      className="text-text-muted hover:text-error p-1.5 disabled:opacity-50"
-                    >
-                      <Trash size={16} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+       <input
+         type="search"
+         value={searchInput}
+         onChange={(e) => setSearchInput(e.target.value)}
+         placeholder="Search by exact email..."
+         className="h-11 w-full md:w-80 rounded-lg border border-border bg-surface-raised px-4 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+       />
+     </div>
 
-      {!isEmailSearch && (
-        <Pagination
-          page={page}
-          totalPages={totalPages}
-          onNext={nextPage}
-          onPrev={prevPage}
-          onGoTo={goToPage}
-          hasNextPage={hasNextPage}
-          hasPrevPage={hasPrevPage}
-        />
-      )}
-    </div>
-  );
+     {isLoading ? (
+       <Loader className="py-16" label="Loading users..." />
+     ) : users.length === 0 ? (
+       <EmptyState
+         icon={<Users size={30} weight="duotone" />}
+         title="No users found"
+       />
+     ) : (
+       <div className="grid gap-5">
+         {users.map((user) => (
+           <div
+             key={user._id}
+             className="rounded-xl border border-border bg-surface-raised p-6 transition-all hover:border-primary/25 hover:shadow-md"
+           >
+             <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+               {/* Left */}
+               <div className="flex items-start gap-4">
+                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary/10 text-lg font-bold text-primary">
+                   {user.fullName?.charAt(0)?.toUpperCase()}
+                 </div>
+
+                 <div className="space-y-2">
+                   <div>
+                     <h2 className="text-lg font-semibold text-text">
+                       {user.fullName}
+                     </h2>
+
+                     <p className="text-sm text-text-secondary">{user.email}</p>
+                   </div>
+
+                   <p className="text-sm text-text-muted">
+                     Joined {formatDate(user.createdAt)}
+                   </p>
+                 </div>
+               </div>
+
+               {/* Right */}
+               <div className="flex items-center gap-3">
+                 <Button
+                   variant="danger"
+                   leftIcon={<Trash size={16} />}
+                   isLoading={deletingId === user._id}
+                   onClick={() => handleDelete(user)}
+                 >
+                   Delete User
+                 </Button>
+               </div>
+             </div>
+           </div>
+         ))}
+       </div>
+     )}
+
+     {!isEmailSearch && (
+       <Pagination
+         page={page}
+         totalPages={totalPages}
+         onNext={nextPage}
+         onPrev={prevPage}
+         onGoTo={goToPage}
+         hasNextPage={hasNextPage}
+         hasPrevPage={hasPrevPage}
+       />
+     )}
+   </div>
+ );
 }
 
 

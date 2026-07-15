@@ -4,16 +4,25 @@ import AdminSidebar from "@/components/layout/AdminSidebar";
 
 export default function AdminLayout() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="min-h-screen bg-bg">
       <Navbar />
-      <div className="flex flex-1 flex-col sm:flex-row">
-        <AdminSidebar />
-        <main className="flex-1">
+
+      <div className="mx-auto flex max-w-[1800px] gap-6 p-5">
+        {/* Sidebar */}
+        <div className="hidden shrink-0 sm:block">
+          <AdminSidebar />
+        </div>
+
+        {/* Mobile Sidebar */}
+        <div className="sm:hidden">
+          <AdminSidebar />
+        </div>
+
+        {/* Page Content */}
+        <main className="min-w-0 flex-1 rounded-2xl border border-border bg-surface-raised p-6 shadow-sm">
           <Outlet />
         </main>
       </div>
     </div>
   );
 }
-
-
