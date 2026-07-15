@@ -1,11 +1,22 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Heart, WhatsappLogo, ChatCircleDots, CaretLeft, CaretRight } from "@phosphor-icons/react";
+import {
+  Heart,
+  WhatsappLogo,
+  ChatCircleDots,
+  CaretLeft,
+  CaretRight,
+} from "@phosphor-icons/react";
 import toast from "react-hot-toast";
 import { productService, reviewService, userService } from "@/api/index";
 import useAuthStore from "@/store/useAuthStore";
 import usePagination from "@/hooks/usePagination";
-import { formatPrice, formatDiscount, buildWhatsAppLink, formatProductType } from "@/lib/formatters";
+import {
+  formatPrice,
+  formatDiscount,
+  buildWhatsAppLink,
+  formatProductType,
+} from "@/lib/formatters";
 import Loader from "@/components/common/Loader";
 import EmptyState from "@/components/common/EmptyState";
 import Button from "@/components/common/Button";
@@ -29,8 +40,16 @@ export default function ProductDetailPage() {
   const [isWishlisted, setIsWishlisted] = useState(false);
 
   const {
-    page, limit, params, totalPages, setTotalPages,
-    nextPage, prevPage, goToPage, hasNextPage, hasPrevPage,
+    page,
+    limit,
+    params,
+    totalPages,
+    setTotalPages,
+    nextPage,
+    prevPage,
+    goToPage,
+    hasNextPage,
+    hasPrevPage,
   } = usePagination(1, 10);
   const [reviews, setReviews] = useState([]);
   const [isLoadingReviews, setIsLoadingReviews] = useState(true);
@@ -52,7 +71,10 @@ export default function ProductDetailPage() {
       .catch((err) => {
         if (!isCancelled) {
           if (err?.response?.status === 404) setNotFound(true);
-          else toast.error(err?.response?.data?.message || "Couldn't load this product");
+          else
+            toast.error(
+              err?.response?.data?.message || "Couldn't load this product",
+            );
         }
       })
       .finally(() => {
@@ -95,7 +117,9 @@ export default function ProductDetailPage() {
       }
       setIsWishlisted((prev) => !prev);
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Couldn't update your wishlist");
+      toast.error(
+        err?.response?.data?.message || "Couldn't update your wishlist",
+      );
     }
   };
 
@@ -106,7 +130,11 @@ export default function ProductDetailPage() {
       return;
     }
     const message = `Hi, I'm interested in "${product.name}" (${formatPrice(product.discountedPrice || product.price)}) on CLothMarket.`;
-    window.open(buildWhatsAppLink(phone, message), "_blank", "noopener,noreferrer");
+    window.open(
+      buildWhatsAppLink(phone, message),
+      "_blank",
+      "noopener,noreferrer",
+    );
   };
 
   const scrollToReviews = () => {
@@ -128,125 +156,267 @@ export default function ProductDetailPage() {
     );
   }
 
-  const { name, images = [], price, discountedPrice, productDescription, type, gender, seller, variants } = product;
+  const {
+    name,
+    images = [],
+    price,
+    discountedPrice,
+    productDescription,
+    type,
+    gender,
+    seller,
+    variants,
+  } = product;
   const hasDiscount = discountedPrice && discountedPrice < price;
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 flex flex-col gap-5">
-      {/* Image carousel */}
-      <div className="relative aspect-square rounded-lg overflow-hidden bg-surface border border-border">
-        {images.length > 0 ? (
-          <img src={images[activeImage]} alt={name} className="h-full w-full object-cover" />
-        ) : (
-          <div className="h-full w-full flex items-center justify-center text-text-muted text-sm">
-            No image available
-          </div>
-        )}
-
-        {images.length > 1 && (
-          <>
-            <button
-              type="button"
-              onClick={() => setActiveImage((i) => (i === 0 ? images.length - 1 : i - 1))}
-              aria-label="Previous image"
-              className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-surface-raised/80 backdrop-blur flex items-center justify-center text-text-secondary hover:text-text"
-            >
-              <CaretLeft size={16} />
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveImage((i) => (i === images.length - 1 ? 0 : i + 1))}
-              aria-label="Next image"
-              className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-surface-raised/80 backdrop-blur flex items-center justify-center text-text-secondary hover:text-text"
-            >
-              <CaretRight size={16} />
-            </button>
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
-              {images.map((_, i) => (
-                <span
-                  key={i}
-                  className={`h-1.5 rounded-full transition-all ${i === activeImage ? "w-4 bg-primary" : "w-1.5 bg-surface-raised/70"}`}
-                />
+    <div className="mx-auto max-w-6xl px-6 sm:px-8 lg:px-10 py-12 lg:py-16">
+      <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-16 items-start">
+        {/* ================= LEFT COLUMN — GALLERY ================= */}
+        <div className="lg:sticky lg:top-24 flex gap-4">
+          {/* Thumbnails (vertical strip) */}
+          {images.length > 1 && (
+            <div className="flex flex-col gap-3 max-h-130 overflow-y-auto pr-1">
+              {images.map((image, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => setActiveImage(index)}
+                  className={[
+                    "overflow-hidden rounded-xl border-2 transition-all duration-200 shrink-0",
+                    activeImage === index
+                      ? "border-primary ring-2 ring-primary/20"
+                      : "border-transparent hover:border-border",
+                  ].join(" ")}
+                >
+                  <img
+                    src={image}
+                    alt={`Thumbnail ${index + 1}`}
+                    className="h-20 w-20 object-cover"
+                  />
+                </button>
               ))}
             </div>
-          </>
-        )}
+          )}
+
+          {/* Main image */}
+          <div className="relative flex-1 overflow-hidden rounded-3xl border border-border bg-surface shadow-sm aspect-square">
+            {images.length > 0 ? (
+              <img
+                src={images[activeImage]}
+                alt={name}
+                className="h-full w-full object-cover transition-all duration-300"
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center text-sm text-text-muted">
+                No image available
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ================= RIGHT COLUMN — INFO ================= */}
+        <div className="flex flex-col gap-8">
+          {/* Seller */}
+          {seller && (
+            <Link
+              to={`/shop/${seller.slug}`}
+              className="group flex items-center justify-between rounded-2xl border border-border bg-surface-raised px-5 py-4 transition-all hover:border-primary hover:shadow-sm"
+            >
+              <div className="flex items-center gap-4">
+                <div className="h-14 w-14 overflow-hidden rounded-full border border-border bg-surface shrink-0">
+                  {seller.avatar && (
+                    <img
+                      src={seller.avatar}
+                      alt={seller.shopName}
+                      className="h-full w-full object-cover"
+                    />
+                  )}
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-text-muted">
+                    Sold by
+                  </p>
+                  <h3 className="font-semibold text-text transition-colors group-hover:text-primary">
+                    {seller.shopName}
+                  </h3>
+                </div>
+              </div>
+              <span className="text-sm font-medium text-primary">
+                View Shop →
+              </span>
+            </Link>
+          )}
+
+          {/* Title + Rating */}
+          <div className="space-y-3">
+            <h1 className="text-3xl lg:text-4xl font-bold tracking-tight text-text leading-tight">
+              {name}
+            </h1>
+
+            {product.numReviews > 0 && (
+              <p className="text-sm text-text-muted">
+                ★ {product.averageRating?.toFixed(1) || "0.0"} ·{" "}
+                {product.numReviews} review
+                {product.numReviews !== 1 ? "s" : ""}
+              </p>
+            )}
+
+            <div className="flex flex-wrap items-center gap-2 text-sm text-text-muted">
+              {gender && (
+                <span className="rounded-full bg-surface px-3 py-1 border border-border">
+                  {gender}
+                </span>
+              )}
+              {type && (
+                <span className="rounded-full bg-surface px-3 py-1 border border-border">
+                  {formatProductType(type)}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Price */}
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-end gap-3">
+              <span className="text-4xl font-bold text-text">
+                {formatPrice(hasDiscount ? discountedPrice : price)}
+              </span>
+
+              {hasDiscount && (
+                <>
+                  <span className="text-lg text-text-muted line-through">
+                    {formatPrice(price)}
+                  </span>
+                  <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
+                    {formatDiscount(price, discountedPrice)}
+                  </span>
+                </>
+              )}
+            </div>
+            <p className="text-sm text-text-muted">Inclusive of all taxes</p>
+          </div>
+
+          {/* Sizes */}
+          {variants?.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-text">Available Sizes</h3>
+                <span className="text-xs text-text-muted">
+                  {variants.length} options
+                </span>
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                {variants.map((variant) => (
+                  <div
+                    key={variant._id}
+                    className="rounded-xl border border-border bg-surface px-4 py-2 transition-all hover:border-primary hover:bg-primary/5"
+                  >
+                    <div className="text-sm font-semibold text-text text-center">
+                      {variant.size}
+                    </div>
+                    <div className="mt-1 text-[11px] text-text-muted text-center">
+                      {variant.quantity} available
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Actions — WhatsApp + Wishlist side by side */}
+          <div className="grid grid-cols-2 gap-4 pt-2">
+            <Button
+              variant="secondary"
+              leftIcon={<WhatsappLogo size={18} />}
+              onClick={handleWhatsAppEnquiry}
+            >
+              WhatsApp
+            </Button>
+
+            <Button
+              variant="primary"
+              leftIcon={
+                <Heart
+                  size={18}
+                  weight={isWishlisted ? "fill" : "regular"}
+                  className={isWishlisted ? "text-primary" : ""}
+                />
+              }
+              onClick={handleToggleWishlist}
+            >
+              Wishlist
+            </Button>
+          </div>
+        </div>
       </div>
 
-      {/* Seller strip */}
-      {seller && (
-        <Link to={`/shop/${seller.slug}`} className="flex items-center gap-2.5 group w-fit">
-          <div className="h-9 w-9 rounded-full overflow-hidden bg-surface shrink-0">
-            {seller.avatar && <img src={seller.avatar} alt={seller.shopName} className="h-full w-full object-cover" />}
-          </div>
-          <span className="text-sm font-medium text-text group-hover:text-primary">{seller.shopName}</span>
-        </Link>
+      {/* ================= DESCRIPTION ================= */}
+      {productDescription && (
+        <div className="my-6">
+          <h2 className="mb-4 text-2xl font-semibold text-text">
+            Product Description
+          </h2>
+          <p className="leading-8 text-text-secondary mb-5 pl-2">
+            {productDescription}
+          </p>
+        </div>
       )}
 
-      {/* Name, price, variants */}
-      <div className="flex flex-col gap-1.5">
-        <h1 className="text-lg font-bold text-text">{name}</h1>
-        <div className="flex items-center gap-2 text-xs text-text-muted">
-          {gender && <span>{gender}</span>}
-          {type && <span>· {formatProductType(type)}</span>}
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xl font-bold text-text">{formatPrice(hasDiscount ? discountedPrice : price)}</span>
-          {hasDiscount && (
-            <>
-              <span className="text-sm text-text-muted line-through">{formatPrice(price)}</span>
-              <span className="text-xs font-semibold text-primary">{formatDiscount(price, discountedPrice)}</span>
-            </>
-          )}
-        </div>
+      {/* ================= REVIEWS ================= */}
+      <section
+        id="reviews"
+        className="mt-16 rounded-3xl border border-border bg-surface-raised shadow-sm overflow-hidden"
+      >
+        <div className="border-b border-border px-6 py-5 lg:px-8">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-2xl font-bold text-text">Customer Reviews</h2>
+              <p className="mt-1 text-sm text-text-muted">
+                See what other customers are saying about this product.
+              </p>
+            </div>
 
-        {variants?.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-1">
-            {variants.map((variant) => (
-              <span key={variant} className="text-xs rounded-full border border-border px-2.5 py-1 text-text-secondary">
-                {variant}
-              </span>
-            ))}
+            <div className="rounded-xl border border-border bg-surface px-4 py-2 text-center">
+              <p className="text-2xl font-bold text-text">
+                {product.averageRating?.toFixed(1) || "0.0"}
+              </p>
+              <p className="text-xs text-text-muted">
+                {product.numReviews || 0} review
+                {product.numReviews !== 1 ? "s" : ""}
+              </p>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
 
-      {/* Action row */}
-      <div className="flex items-center gap-2 py-1">
-        <Button
-          variant="secondary"
-          size="sm"
-          leftIcon={<Heart size={16} weight={isWishlisted ? "fill" : "regular"} className={isWishlisted ? "text-primary" : ""} />}
-          onClick={handleToggleWishlist}
-        >
-          Wishlist
-        </Button>
-        <Button variant="primary" size="sm" leftIcon={<WhatsappLogo size={16} />} onClick={handleWhatsAppEnquiry}>
-          Enquire on WhatsApp
-        </Button>
-        <Button variant="ghost" size="sm" leftIcon={<ChatCircleDots size={16} />} onClick={scrollToReviews}>
-          Reviews
-        </Button>
-      </div>
+        <div className="px-6 py-8 lg:px-8 flex flex-col gap-8">
+          {actorType === "user" && (
+            <div className="rounded-2xl border border-border bg-surface p-5">
+              <h3 className="mb-4 text-lg font-semibold text-text">
+                Write a Review
+              </h3>
+              <ReviewForm productId={product._id} onSuccess={fetchReviews} />
+            </div>
+          )}
 
-      {productDescription && <p className="text-sm text-text-secondary leading-relaxed">{productDescription}</p>}
-
-      {/* Reviews */}
-      <div id="reviews" className="pt-4 border-t border-border flex flex-col gap-5">
-        <h2 className="text-sm font-semibold text-text">Reviews</h2>
-
-        {actorType === "user" && (
-          <ReviewForm productId={product._id} onSuccess={fetchReviews} />
-        )}
-
-        <ReviewList
-          reviews={reviews}
-          isLoading={isLoadingReviews}
-          pagination={{ page, totalPages, onNext: nextPage, onPrev: prevPage, onGoTo: goToPage, hasNextPage, hasPrevPage }}
-        />
-      </div>
+          <div className="rounded-2xl border border-border bg-surface p-5 mx-auto">
+            <ReviewList
+              reviews={reviews}
+              isLoading={isLoadingReviews}
+              pagination={{
+                page,
+                totalPages,
+                onNext: nextPage,
+                onPrev: prevPage,
+                onGoTo: goToPage,
+                hasNextPage,
+                hasPrevPage,
+              }}
+            />
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
-
-

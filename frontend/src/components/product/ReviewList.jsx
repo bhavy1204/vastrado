@@ -24,7 +24,7 @@ export default function ReviewList({ reviews, isLoading = false, pagination }) {
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5 mt-10">
       {reviews.map((review) => (
         <div key={review._id} className="flex flex-col gap-1.5 pb-5 border-b border-border last:border-b-0">
           <div className="flex items-center justify-between">

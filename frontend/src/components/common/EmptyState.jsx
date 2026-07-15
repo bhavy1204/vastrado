@@ -27,7 +27,7 @@ export default function EmptyState({
         className,
       ].join(" ")}
     >
-      <div className="flex items-center justify-center h-14 w-14 rounded-full bg-primary-subtle text-primary mb-4">
+      <div className="flex items-center justify-center h-14 w-14 rounded-full text-primary mb-4">
         {icon || <Package size={26} weight="duotone" />}
       </div>
 
