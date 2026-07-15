@@ -50,6 +50,7 @@ const buildSortOption = (sort) => {
 // ─── CREATE PRODUCT ───────────────────────────────────────────────────────────
 
 const createProduct = asyncHandler(async (req, res) => {
+    console.log("SELLER EACHED HERE");
     const seller = await Seller.findById(req.user._id).select("subscription status");
 
     if (seller.status === "suspended" || seller.status === "pending") {
@@ -261,7 +262,7 @@ const getMyProducts = asyncHandler(async (req, res) => {
     // seller sees all products including inactive
     const [products, total] = await Promise.all([
         Product.find({ sellerId: req.user._id })
-            .select("productName slug price discountedPrice images isActive averageRating numReviews productType variants createdAt")
+            .select("productName productDescription slug price discountedPrice images isActive averageRating numReviews productType gender color brand variants createdAt")
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit)

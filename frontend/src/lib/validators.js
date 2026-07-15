@@ -9,6 +9,10 @@ const phoneSchema = z.string().regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit Ind
 
 const otpSchema = z.string().length(6, "OTP must be 6 digits").regex(/^\d+$/, "OTP must be numeric");
 
+const optionalString = z.preprocess(
+    (value) => value === "" ? undefined : value,
+    z.string().trim().optional()
+);
 
 export const userRegisterSchema = z.object({
     fullName: z.string().trim().min(2, "Name is too short").max(60),
@@ -74,14 +78,14 @@ export const sellerRegisterSchema = z
         email: emailSchema,
         phone: phoneSchema,
         fullName: z.string().trim().min(2, "Name is too short").max(60),
-        altPhone:phoneSchema,
-        shopCategory:z.string().trim(),
+        altPhone: phoneSchema,
+        shopCategory: z.string().trim(),
         whatsappNumber: phoneSchema,
         addressLine1: z.string(),
-        addressLine2:z.string(),
-        city:z.string().trim(),
-        state:z.string().trim(),
-        postalCode:z.string().trim(),
+        addressLine2: z.string(),
+        city: z.string().trim(),
+        state: z.string().trim(),
+        postalCode: z.string().trim(),
         shopDescription: z.string().trim().max(500).optional(),
         password: passwordSchema,
         confirmPassword: z.string().min(1, "Please confirm your password"),
@@ -91,7 +95,7 @@ export const sellerRegisterSchema = z
         path: ["confirmPassword"],
     });
 
-     
+
 export const sellerLoginSchema = z.object({
     identifier: z.string().trim().min(1, "Email or username is required"),
     password: z.string().min(1, "Password is required"),
@@ -115,22 +119,28 @@ export const sellerProfileUpdateSchema = z.object({
 
 
 export const createProductSchema = z.object({
-        productName: z.string().trim().min(2, "Product name is required").max(120),
-        productDescription: z.string().trim().min(10, "Description too short").max(2000),
-        price: z.coerce.number().positive("Price must be greater than 0"),
-        discountedPrice: z.coerce.number().positive().optional(),
-        gender: z.enum(["men", "women", "kids", "unisex"]),
-        productType: z.string().trim().min(1, "Select a product type"),
-        color: z.string().trim().min(1, "Color is required"),
-        brand: z.string().trim().min(1, "Brand is required"),
-        variants: z.array(
-                z.object({
-                    size: z.string().trim().min(1, "Size is required"),
-                    quantity: z.coerce.number().int().min(0, "Quantity cannot be negative"),
-                })
-            )
-            .min(1, "Add at least one variant"),
-    })
+    productName: z.string().trim().min(2, "Product name is required").max(120),
+    productDescription: z.string().trim().min(10, "Description too short").max(2000),
+    price: z.coerce.number().positive("Price must be greater than 0"),
+    discountedPrice: z.preprocess(
+        (value) => (value === "" ? undefined : Number(value)),
+        z.number().min(0).optional()
+    ),
+    gender: z.enum(["men", "women", "kids", "unisex"]),
+    productType: z.string().trim().min(1, "Select a product type"),
+    color: z.string().trim().min(1, "Color is required"),
+    brand: z.preprocess(
+        (value) => value === "" ? undefined : value,
+        z.string().trim().optional()
+    ),
+    variants: z.array(
+        z.object({
+            size: z.string().trim().min(1, "Size is required"),
+            quantity: z.coerce.number().int().min(0, "Quantity cannot be negative"),
+        })
+    )
+        .min(1, "Add at least one variant"),
+})
     .refine(
         (data) =>
             data.discountedPrice === undefined || data.discountedPrice < data.price,
@@ -144,7 +154,7 @@ export const updateProductSchema = z.object({
     productName: z.string().trim().min(2).max(120).optional(),
     productDescription: z.string().trim().min(10).max(2000).optional(),
     price: z.coerce.number().positive().optional(),
-    discountedPrice: z.coerce.number().positive().optional(),
+    discountedPrice: optionalString,
     variants: z
         .array(
             z.object({

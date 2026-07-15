@@ -73,6 +73,7 @@ export default function SellerProductsPage() {
   };
 
   const openEditModal = (product) => {
+    console.log(product);
     setEditingProduct(product);
     setIsModalOpen(true);
   };
@@ -154,8 +155,12 @@ export default function SellerProductsPage() {
                   {product.productName}
                 </p>
                 <p className="text-xs text-text-muted mt-0.5">
-                  {formatPrice(product.discountedPrice || product.price)}
-                  {product.discountedPrice && (
+                  {formatPrice(
+                    product.discountedPrice > 0
+                      ? product.discountedPrice
+                      : product.price,
+                  )}
+                  {product.discountedPrice > 0 && (
                     <span className="line-through ml-1.5">
                       {formatPrice(product.price)}
                     </span>
@@ -284,6 +289,8 @@ function ProductFormModal({ isOpen, onClose, product, onSaved }) {
       } else {
         const formData = new FormData();
         Object.entries(data).forEach(([key, value]) => {
+          if (value === undefined) return;
+
           if (key === "variants") {
             formData.append(key, JSON.stringify(value));
           } else {
@@ -296,6 +303,8 @@ function ProductFormModal({ isOpen, onClose, product, onSaved }) {
       }
       onSaved();
     } catch (err) {
+      console.log(err);
+      console.log(err.response);
       toast.error(err?.response?.data?.message || "Couldn't save this product");
     } finally {
       setIsSubmitting(false);

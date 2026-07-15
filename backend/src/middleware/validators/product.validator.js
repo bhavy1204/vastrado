@@ -90,6 +90,11 @@ export const validateUpdateProduct = [
         .optional()
         .isFloat({ min: 0 }).withMessage("Discounted price must be a non-negative number")
         .custom((val, { req }) => {
+            console.log({
+                bodyPrice: req.body.price,
+                productPrice: req.product?.price,
+                discount: val,
+            });
             const price = req.body.price ?? req.product?.price  // req.product set by controller if needed
             if (val !== undefined && val !== 0 && price && parseFloat(val) >= parseFloat(price)) {
                 throw new Error("Discounted price must be less than the original price")

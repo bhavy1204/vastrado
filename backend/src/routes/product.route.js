@@ -20,6 +20,7 @@ import {
 } from "../middleware/validators/product.validator.js";
 import { validateObjectId, validatePaginationQuery } from "../middleware/validators/common.validator.js";
 import { uploadProductImages } from "../middleware/upload.middleware.js";
+import { parseVariants } from "../middleware/parseVariants.js";
 
 const router = express.Router();
 
@@ -38,7 +39,7 @@ router.get("/:productId", validateObjectId("productId"), getProductById);
 router.use(verifyJWT, verifySellerOnly);
 
 router.get("/my/products", validatePaginationQuery, getMyProducts);
-router.post("/", uploadProductImages, validateCreateProduct, createProduct);
+router.post("/", uploadProductImages,parseVariants, validateCreateProduct, createProduct);
 router.patch("/:productId", validateObjectId("productId"), validateUpdateProduct, updateProduct);
 router.patch("/:productId/toggle", validateObjectId("productId"), toggleProductStatus);
 router.delete("/:productId", validateObjectId("productId"), deleteProduct);
