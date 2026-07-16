@@ -56,46 +56,66 @@ export const validateUserUpdateProfile = [
 export const validateUserAddress = [
     body("label")
         .optional()
-        .isIn(["home", "office"]).withMessage("Label must be home or office"),
+        .trim()
+        .toLowerCase()
+        .isIn(["home", "office"])
+        .withMessage("Label must be home or office"),
 
     body("addressLine1")
         .trim()
-        .notEmpty().withMessage("Address line 1 is required")
-        .isLength({ max: 100 }).withMessage("Address line 1 must be at most 100 characters"),
+        .notEmpty()
+        .withMessage("Address line 1 is required")
+        .isLength({ max: 100 })
+        .withMessage("Address line 1 must be at most 100 characters"),
 
     body("addressLine2")
-        .optional()
+        .optional({ values: "falsy" })
         .trim()
-        .isLength({ max: 100 }).withMessage("Address line 2 must be at most 100 characters"),
+        .isLength({ max: 100 })
+        .withMessage("Address line 2 must be at most 100 characters"),
 
     body("landmark")
-        .optional()
+        .optional({ values: "falsy" })
         .trim()
-        .isLength({ max: 100 }).withMessage("Landmark must be at most 100 characters"),
+        .isLength({ max: 100 })
+        .withMessage("Landmark must be at most 100 characters"),
 
     body("city")
         .trim()
-        .notEmpty().withMessage("City is required")
-        .isLength({ max: 50 }).withMessage("City must be at most 50 characters"),
+        .notEmpty()
+        .withMessage("City is required")
+        .isLength({ max: 50 })
+        .withMessage("City must be at most 50 characters"),
 
     body("state")
         .trim()
-        .notEmpty().withMessage("State is required")
-        .isLength({ max: 50 }).withMessage("State must be at most 50 characters"),
+        .notEmpty()
+        .withMessage("State is required")
+        .isLength({ max: 50 })
+        .withMessage("State must be at most 50 characters"),
 
     body("postalCode")
         .trim()
-        .notEmpty().withMessage("Postal code is required")
-        .matches(POSTAL_REGEX).withMessage("Invalid Indian postal code"),
+        .notEmpty()
+        .withMessage("Postal code is required")
+        .matches(POSTAL_REGEX)
+        .withMessage("Invalid Indian postal code"),
+
+    body("country")
+        .equals("India")
+        .withMessage("Country must be India"),
 
     body("phone")
         .trim()
-        .notEmpty().withMessage("Phone number is required for address")
-        .matches(PHONE_REGEX).withMessage("Invalid Indian phone number"),
+        .notEmpty()
+        .withMessage("Phone number is required for address")
+        .matches(PHONE_REGEX)
+        .withMessage("Invalid Indian phone number"),
 
     body("isDefault")
         .optional()
-        .isBoolean().withMessage("isDefault must be a boolean"),
+        .isBoolean()
+        .withMessage("isDefault must be a boolean"),
 
-    handleValidationErrors
-]
+    handleValidationErrors,
+];

@@ -60,11 +60,18 @@ export default function NearbySellersMap({ radiusKm = NEARBY_DEFAULT_RADIUS_KM }
       .getNearbySellers({ lat: coords.lat, lng: coords.lng, radiusKm })
       .then((res) => {
         if (isCancelled) return;
-        const payload = res.data?.sellers ?? res.data?.data ?? res.data;
-        setSellers(Array.isArray(payload) ? payload : []);
+
+        const payload = res.data;
+
+        const sellers = payload?.data?.sellers ?? payload?.sellers ?? [];
+
+        setSellers(sellers);
       })
       .catch((err) => {
-        if (!isCancelled) setFetchError(err?.response?.data?.message || "Couldn't load nearby shops");
+        if (!isCancelled)
+          setFetchError(
+            err?.response?.data?.message || "Couldn't load nearby shops",
+          );
       })
       .finally(() => {
         if (!isCancelled) setIsLoading(false);

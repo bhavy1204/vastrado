@@ -23,57 +23,60 @@ export default function ShopPage() {
   const { actorType, seller: loggedInSeller } = useAuthStore();
 
   const [seller, setSeller] = useState(null);
+  const [products, setProducts] = useState([]);
   const [isLoadingSeller, setIsLoadingSeller] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [isLocationOpen, setIsLocationOpen] = useState(false);
 
-  const { page, limit, params, totalPages, setTotalPages, nextPage, prevPage, goToPage, hasNextPage, hasPrevPage } =
-    usePagination();
-  const [products, setProducts] = useState([]);
-  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const {
+    page,
+    totalPages,
+    setTotalPages,
+    nextPage,
+    prevPage,
+    goToPage,
+    hasNextPage,
+    hasPrevPage,
+  } = usePagination();
 
   useEffect(() => {
     let isCancelled = false;
+
     setIsLoadingSeller(true);
     setNotFound(false);
 
     sellerService
       .getSellerPublicProfile(slug)
       .then((res) => {
-        if (!isCancelled) setSeller(res.data.data);
+        if (isCancelled) return;
+
+        const data = res.data.data;
+
+        setSeller(data.seller);
+        setProducts(data.products ?? []);
+        setTotalPages(1);
       })
       .catch((err) => {
-        if (!isCancelled) {
-          if (err?.response?.status === 404) setNotFound(true);
-          else toast.error(err?.response?.data?.message || "Couldn't load this shop");
+        if (isCancelled) return;
+
+        if (err?.response?.status === 404) {
+          setNotFound(true);
+        } else {
+          toast.error(
+            err?.response?.data?.message || "Couldn't load this shop",
+          );
         }
       })
       .finally(() => {
-        if (!isCancelled) setIsLoadingSeller(false);
+        if (!isCancelled) {
+          setIsLoadingSeller(false);
+        }
       });
 
     return () => {
       isCancelled = true;
     };
-  }, [slug]);
-
-  const fetchProducts = useCallback(() => {
-    if (!seller?._id) return;
-    setIsLoadingProducts(true);
-    productService
-      .getSellerProducts(seller._id, params)
-      .then((res) => {
-        setProducts(res.data.data.products);
-        setTotalPages(res.data.data.pagination.totalPages);
-      })
-      .catch(() => {})
-      .finally(() => setIsLoadingProducts(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [seller?._id, page, limit]);
-
-  useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+  }, [slug, setTotalPages]);
 
   const isOwner = actorType === "seller" && loggedInSeller?.slug === slug;
 
@@ -103,35 +106,50 @@ export default function ShopPage() {
       <div className="px-4 sm:px-6 py-6">
         <ProductGrid
           products={products}
-          isLoading={isLoadingProducts}
+          isLoading={isLoadingSeller}
           emptyTitle="No products listed yet"
           emptyDescription="This shop hasn't added any products yet — check back soon."
         />
-        <div className="mt-6">
-          <Pagination
-            page={page}
-            totalPages={totalPages}
-            onNext={nextPage}
-            onPrev={prevPage}
-            onGoTo={goToPage}
-            hasNextPage={hasNextPage}
-            hasPrevPage={hasPrevPage}
-          />
-        </div>
+
+        {totalPages > 1 && (
+          <div className="mt-6">
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onNext={nextPage}
+              onPrev={prevPage}
+              onGoTo={goToPage}
+              hasNextPage={hasNextPage}
+              hasPrevPage={hasPrevPage}
+            />
+          </div>
+        )}
       </div>
 
-      <Modal isOpen={isLocationOpen} onClose={() => setIsLocationOpen(false)} title="Shop location" size="md">
+      <Modal
+        isOpen={isLocationOpen}
+        onClose={() => setIsLocationOpen(false)}
+        title="Shop location"
+        size="md"
+      >
         {seller.location?.coordinates ? (
           <iframe
             title="Shop location"
             width="100%"
             height="300"
             style={{ border: 0, borderRadius: 8 }}
-            src={`https://www.openstreetmap.org/export/embed.html?bbox=${seller.location.coordinates[0] - 0.01}%2C${seller.location.coordinates[1] - 0.01}%2C${seller.location.coordinates[0] + 0.01}%2C${seller.location.coordinates[1] + 0.01}&marker=${seller.location.coordinates[1]}%2C${seller.location.coordinates[0]}`}
+            src={`https://www.openstreetmap.org/export/embed.html?bbox=${
+              seller.location.coordinates[0] - 0.01
+            }%2C${seller.location.coordinates[1] - 0.01}%2C${
+              seller.location.coordinates[0] + 0.01
+            }%2C${seller.location.coordinates[1] + 0.01}&marker=${
+              seller.location.coordinates[1]
+            }%2C${seller.location.coordinates[0]}`}
           />
         ) : (
-          <p className="text-sm text-text-muted flex items-center gap-2">
-            <MapPin size={16} /> Location not available for this shop.
+          <p className="flex items-center gap-2 text-sm text-text-muted">
+            <MapPin size={16} />
+            Location not available for this shop.
           </p>
         )}
       </Modal>

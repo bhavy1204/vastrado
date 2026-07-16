@@ -46,7 +46,7 @@ export const resetPasswordSchema = z.object({
     });
 
 export const changePasswordSchema = z.object({
-    oldPassword: z.string().min(1, "Current password is required"),
+    currentPassword: z.string().min(1, "Current password is required"),
     newPassword: passwordSchema,
     confirmPassword: z.string(),
 })
@@ -58,9 +58,12 @@ export const changePasswordSchema = z.object({
 export const addressSchema = z.object({
     label: z.string().trim().min(1, "Label is required"),
     addressLine1: z.string().trim().min(5, "Address is too short"),
+    addressLine2: optionalString,
+    landmark: optionalString,
     city: z.string().trim().min(2, "City is required"),
     state: z.string().trim().min(2, "State is required"),
     postalCode: z.string().regex(/^\d{6}$/, "Enter a valid 6-digit postal code"),
+    country: z.literal("India"),
     phone: phoneSchema,
     isDefault: z.boolean().optional(),
 });

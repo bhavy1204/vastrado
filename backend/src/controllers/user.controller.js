@@ -489,8 +489,7 @@ const getWishlist = asyncHandler(async (req, res) => {
     // populate returns null for deleted products — filter them out
     const wishlist = user.wishlist.filter(Boolean).map((product) => ({
         ...product.toObject(),
-        image: product.images?.[0] ?? null, // only first image for card
-        images: undefined,
+        images: product.images?.slice(0, 1) ?? [], // only first image for card
     }));
 
     return res.status(200).json(

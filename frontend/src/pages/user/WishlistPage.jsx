@@ -12,8 +12,18 @@ import Pagination from "@/components/common/Pagination";
  * design decision to keep it lean) — this page owns its own local state.
  */
 export default function WishlistPage() {
-  const { page, limit, params, totalPages, setTotalPages, nextPage, prevPage, goToPage, hasNextPage, hasPrevPage } =
-    usePagination();
+  const {
+    page,
+    limit,
+    params,
+    totalPages,
+    setTotalPages,
+    nextPage,
+    prevPage,
+    goToPage,
+    hasNextPage,
+    hasPrevPage,
+  } = usePagination();
 
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -23,12 +33,14 @@ export default function WishlistPage() {
     userService
       .getWishlist(params)
       .then((res) => {
-        const items = res.data.data.items;
-        // Items may come back either as raw products or { product } wrappers
-        setProducts(items.map((item) => item.product || item));
-        setTotalPages(res.data.data.pagination.totalPages);
+        setProducts(res.data.data);
+        setTotalPages(1);
       })
-      .catch((err) => toast.error(err?.response?.data?.message || "Couldn't load your wishlist"))
+      .catch((err) =>
+        toast.error(
+          err?.response?.data?.message || "Couldn't load your wishlist",
+        ),
+      )
       .finally(() => setIsLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, limit]);
@@ -72,4 +84,3 @@ export default function WishlistPage() {
     </div>
   );
 }
-

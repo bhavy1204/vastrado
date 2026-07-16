@@ -89,7 +89,7 @@ function BasicInfoSection({ user, onSaved }) {
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <Input label="Full name" leftIcon={<User size={16} />} error={errors.fullName?.message} {...register("fullName")} />
         <Input label="Email" value={user?.email || ""} disabled leftIcon={<User size={16} />} />
-        <Input label="Phone number" type="tel" leftIcon={<Phone size={16} />} error={errors.phone?.message} {...register("phone")} />
+        {/* <Input label="Phone number" type="tel" leftIcon={<Phone size={16} />} error={errors.phone?.message} {...register("addresses.phone")} /> */}
         <Button type="submit" variant="primary" isLoading={isSubmitting} className="self-start">
           Save changes
         </Button>
@@ -135,17 +135,44 @@ function AddressList({ user, onChanged }) {
   return (
     <div className="flex flex-col gap-2">
       {addresses.map((address) => (
-        <div key={address._id} className="flex items-start gap-3 rounded-md border border-border bg-surface-raised p-3">
+        <div
+          key={address._id}
+          className="flex items-start gap-3 rounded-md border border-border bg-surface-raised p-3"
+        >
           <MapPin size={16} className="text-text-muted shrink-0 mt-0.5" />
+
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-text">{address.label}</span>
+              <span className="text-sm font-medium text-text capitalize">
+                {address.label}
+              </span>
+
               {address.isDefault && (
-                <span className="text-xs text-primary bg-primary-subtle rounded-full px-2 py-0.5">Default</span>
+                <span className="text-xs text-primary bg-primary-subtle rounded-full px-2 py-0.5">
+                  Default
+                </span>
               )}
             </div>
-            <p className="text-sm text-text-secondary mt-0.5">{address.line1}, {address.city}</p>
+
+            <p className="mt-1 text-sm text-text-secondary">
+              {[
+                address.addressLine1,
+                address.addressLine2,
+                address.landmark,
+                address.city,
+                address.state,
+                address.postalCode,
+                address.country,
+              ]
+                .filter(Boolean)
+                .join(", ")}
+            </p>
+
+            <p className="mt-1 text-xs text-text-muted">
+              Phone: {address.phone}
+            </p>
           </div>
+
           <div className="flex items-center gap-1 shrink-0">
             {!address.isDefault && (
               <button
@@ -158,6 +185,7 @@ function AddressList({ user, onChanged }) {
                 <Star size={16} />
               </button>
             )}
+
             <button
               type="button"
               onClick={() => handleDelete(address)}
@@ -183,7 +211,18 @@ function AddressFormModal({ isOpen, onClose, onSaved }) {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(addressSchema),
-    defaultValues: { label: "", line1: "", city: "" },
+    defaultValues: {
+      label: "",
+      addressLine1: "",
+      addressLine2: "",
+      landmark: "",
+      city: "",
+      state: "",
+      postalCode: "",
+      country: "India",
+      phone: "",
+      isDefault: false,
+    },
   });
 
   const onSubmit = async (data) => {
@@ -211,18 +250,85 @@ function AddressFormModal({ isOpen, onClose, onSaved }) {
           >
             <option value="">Select...</option>
             {ADDRESS_LABELS.map((label) => (
-              <option key={label} value={label}>{label}</option>
+              <option key={label} value={label}>
+                {label}
+              </option>
             ))}
           </select>
-          {errors.label && <p className="text-xs text-error">{errors.label.message}</p>}
+          {errors.label && (
+            <p className="text-xs text-error">{errors.label.message}</p>
+          )}
         </div>
 
-        <Input label="Address line" error={errors.line1?.message} {...register("line1")} />
-        <Input label="City" error={errors.city?.message} {...register("city")} />
+        <Input
+          label="Address line 1"
+          error={errors.addressLine1?.message}
+          {...register("addressLine1")}
+        />
+
+        <Input
+          label="Address line 2 (Optional)"
+          error={errors.addressLine2?.message}
+          {...register("addressLine2")}
+        />
+
+        <Input
+          label="Landmark (Optional)"
+          error={errors.landmark?.message}
+          {...register("landmark")}
+        />
+
+        <div className="grid grid-cols-2 gap-4">
+          <Input
+            label="City"
+            error={errors.city?.message}
+            {...register("city")}
+          />
+
+          <Input
+            label="State"
+            error={errors.state?.message}
+            {...register("state")}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <Input
+            label="Postal code"
+            error={errors.postalCode?.message}
+            {...register("postalCode")}
+          />
+
+          <Input
+            label="Phone"
+            error={errors.phone?.message}
+            {...register("phone")}
+          />
+        </div>
+
+        <Input
+          label="Country"
+          value="India"
+          disabled
+          {...register("country")}
+        />
+
+        <label className="flex items-center gap-2 text-sm text-text">
+          <input
+            type="checkbox"
+            className="rounded border-border"
+            {...register("isDefault")}
+          />
+          Set as default address
+        </label>
 
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
-          <Button type="submit" variant="primary" isLoading={isSubmitting}>Add address</Button>
+          <Button type="button" variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="submit" variant="primary" isLoading={isSubmitting}>
+            Add address
+          </Button>
         </div>
       </form>
     </Modal>
@@ -239,6 +345,7 @@ function ChangePasswordSection() {
   } = useForm({ resolver: zodResolver(changePasswordSchema) });
 
   const onSubmit = async (data) => {
+    console.log(data)
     setIsSubmitting(true);
     try {
       await userService.changePassword(data);
@@ -256,10 +363,41 @@ function ChangePasswordSection() {
       <h2 className="text-sm font-semibold text-text-muted uppercase tracking-wide">
         Change password
       </h2>
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 max-w-sm">
-        <Input label="Current password" type="password" leftIcon={<LockKey size={16} />} error={errors.currentPassword?.message} {...register("currentPassword")} />
-        <Input label="New password" type="password" leftIcon={<LockKey size={16} />} error={errors.newPassword?.message} {...register("newPassword")} />
-        <Button type="submit" variant="primary" isLoading={isSubmitting} className="self-start">
+
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col gap-4 max-w-sm"
+      >
+        <Input
+          label="Current password"
+          type="password"
+          leftIcon={<LockKey size={16} />}
+          error={errors.currentPassword?.message}
+          {...register("currentPassword")}
+        />
+
+        <Input
+          label="New password"
+          type="password"
+          leftIcon={<LockKey size={16} />}
+          error={errors.newPassword?.message}
+          {...register("newPassword")}
+        />
+
+        <Input
+          label="Confirm new password"
+          type="password"
+          leftIcon={<LockKey size={16} />}
+          error={errors.confirmPassword?.message}
+          {...register("confirmPassword")}
+        />
+
+        <Button
+          type="submit"
+          variant="primary"
+          isLoading={isSubmitting}
+          className="self-start"
+        >
           Update password
         </Button>
       </form>
