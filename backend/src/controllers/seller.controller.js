@@ -370,7 +370,7 @@ const getSellerPublicProfile = asyncHandler(async (req, res) => {
     const { slug } = req.params;
 
     const seller = await Seller.findOne({ slug, status: "approved" })
-        .select("fullName shopName shopDescription shopCategory avatar banner city state whatsappNumber slug averageRating")
+        .select("fullName shopName shopDescription shopCategory avatar banner city state whatsappNumber slug averageRating status phone createdAt")
         .lean();
 
     if (!seller)
@@ -380,6 +380,8 @@ const getSellerPublicProfile = asyncHandler(async (req, res) => {
         .select("productName slug price discountedPrice images averageRating numReviews")
         .sort({ createdAt: -1 })
         .lean();
+
+    seller.productCount = products.length;
 
     return res.status(200).json(
         new APIResponse(200, { seller, products }, "Shop profile fetched successfully")

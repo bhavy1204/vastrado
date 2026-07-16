@@ -1,4 +1,14 @@
-import { PencilSimple, MapPin, Star, Plus } from "@phosphor-icons/react";
+import {
+  CalendarBlank,
+  MapPin,
+  Phone,
+  SealCheck,
+  WhatsappLogo,
+  MapTrifold,
+  Package,
+  PencilSimple,
+  Plus,
+} from "@phosphor-icons/react";
 import Button from "@/components/common/Button";
 import SubscriptionStatusBadge from "./SubscriptionStatusBadge";
 
@@ -19,7 +29,17 @@ export default function ShopHeader({
   onOpenLocation,
   onAddProduct,
 }) {
-  const { shopName, shopDescription, avatar, banner, averageRating, numReviews, subscriptionStatus } = seller;
+  const {
+    shopName,
+    shopDescription,
+    avatar,
+    banner,
+    averageRating,
+    numReviews,
+    subscriptionStatus,
+    phone,
+    status,
+  } = seller;
 
   return (
     <div className="relative">
@@ -31,7 +51,11 @@ export default function ShopHeader({
         )}
 
         {isOwner && (
-          <EditButton onClick={onEditBanner} className="absolute top-3 right-3" label="Edit banner" />
+          <EditButton
+            onClick={onEditBanner}
+            className="absolute top-3 right-3"
+            label="Edit banner"
+          />
         )}
 
         {isOwner && onAddProduct && (
@@ -46,17 +70,27 @@ export default function ShopHeader({
       </div>
 
       <div className="px-4 sm:px-6">
-        <div className="relative -mt-10 sm:-mt-12 flex items-end gap-4">
-          <div className="relative h-20 w-20 sm:h-24 sm:w-24 rounded-full ring-4 ring-surface-raised overflow-hidden bg-surface shrink-0">
+        <div className="relative -mt-5 sm:-mt-12 flex items-end gap-4">
+          <div className="relative h-32 w-32 sm:h-28 sm:w-28 lg:h-40 lg:w-40 rounded-full ring-4 ring-surface-raised overflow-hidden bg-surface shrink-0">
             {avatar ? (
-              <img src={avatar} alt={shopName} className="h-full w-full object-cover" />
+              <img
+                src={avatar}
+                alt={shopName}
+                className="h-full w-full object-cover"
+              />
             ) : (
-              <div className="h-full w-full flex items-center justify-center text-xl text-text-muted">
+              <div className="h-full w-full flex items-center justify-center text-2xl lg:text-4xl text-text-muted">
                 {shopName?.[0]}
               </div>
             )}
+
             {isOwner && (
-              <EditButton onClick={onEditAvatar} className="absolute bottom-0 right-0" label="Edit avatar" small />
+              <EditButton
+                onClick={onEditAvatar}
+                className="absolute bottom-0 right-0"
+                label="Edit avatar"
+                small
+              />
             )}
           </div>
 
@@ -70,9 +104,19 @@ export default function ShopHeader({
         <div className="mt-3 flex flex-col gap-1.5 pb-4">
           <h1 className="text-lg font-bold text-text">{shopName}</h1>
 
+          <div className="flex items-center gap-1 text-sm text-text-muted">
+            <MapPin size={16} />
+            <span className="capitalize">
+              {seller.city}, {seller.state}
+            </span>
+          </div>
+
           <div className="relative group flex items-start gap-2">
             <p className="text-sm text-text-secondary leading-relaxed max-w-2xl">
-              {shopDescription || (isOwner ? "Add a Shop Description so customers know what you sell." : "")}
+              {shopDescription ||
+                (isOwner
+                  ? "Add a Shop Description so customers know what you sell."
+                  : "")}
             </p>
             {isOwner && (
               <button
@@ -86,15 +130,59 @@ export default function ShopHeader({
             )}
           </div>
 
-          <div className="flex items-center gap-2 mt-1">
-            {averageRating > 0 && (
-              <span className="inline-flex items-center gap-1 text-sm text-text bg-surface border border-border rounded-full px-3 py-1">
-                <Star size={14} weight="fill" className="text-primary" />
-                {averageRating.toFixed(1)} ({numReviews})
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            {seller.status === "approved" && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-700">
+                <SealCheck size={16} weight="fill" />
+                Verified
               </span>
             )}
-            <Button variant="secondary" size="sm" leftIcon={<MapPin size={15} />} onClick={onOpenLocation}>
+
+            <span className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-3 py-1 text-sm text-text">
+              <Package size={16} />
+              {seller.productCount} Products
+            </span>
+
+            <span className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-3 py-1 text-sm text-text">
+              <CalendarBlank size={16} />
+              Joined{" "}
+              {new Date(seller.createdAt).toLocaleDateString("en-IN", {
+                month: "short",
+                year: "numeric",
+              })}
+            </span>
+          </div>
+
+          
+          <div className="flex items-center gap-2 mt-1">
+            <Button
+              variant="secondary"
+              size="sm"
+              leftIcon={<MapPin size={15} />}
+              onClick={onOpenLocation}
+            >
               Location
+            </Button>
+            <Button
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="primary"
+              onClick={() =>
+                window.open(
+                  `https://wa.me/91${seller.whatsappNumber}`,
+                  "_blank",
+                  "noopener,noreferrer",
+                )
+              }
+            >
+              Contact on WhatsApp
+            </Button>
+            <Button
+              variant="secondary"
+              leftIcon={<Phone size={18} />}
+              onClick={() => window.open(`tel:${seller.phone}`)}
+            >
+              Call Seller
             </Button>
           </div>
         </div>
@@ -119,5 +207,3 @@ function EditButton({ onClick, className = "", label, small = false }) {
     </button>
   );
 }
-
-
