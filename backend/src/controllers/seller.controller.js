@@ -8,7 +8,7 @@ import { sendOTPEmail } from "../utils/email.js";
 import { Seller } from "../models/seller.model.js";
 import { Product } from "../models/product.model.js";
 import { OTP } from "../models/otp.model.js";
-import { uploadToB2, deleteFromB2 } from "../utils/b2.js";
+import { uploadToB2, deleteFromB2 } from "../utils/B2.js";
 import sharp from "sharp";
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);

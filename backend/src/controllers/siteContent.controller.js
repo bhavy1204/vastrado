@@ -4,7 +4,7 @@ import { APIError } from "../utils/apiError.js";
 import { APIResponse } from "../utils/apiResponse.js";
 import { HeroBanner, Faq } from "../models/siteContent.model.js";
 import { Seller } from "../models/seller.model.js";
-import { uploadToB2 } from "../utils/b2.js";
+import { uploadToB2 } from "../utils/B2.js";
 
 // helper
 
