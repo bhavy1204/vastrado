@@ -158,13 +158,13 @@ export default function Navbar() {
                   >
                     My shop
                   </MenuLink>
-                  <MenuLink
+                  {/* <MenuLink
                     to="/seller/dashboard"
                     icon={<SquaresFour size={16} />}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Dashboard
-                  </MenuLink>
+                  </MenuLink> */}
                   <button
                     onClick={handleLogout}
                     role="menuitem"

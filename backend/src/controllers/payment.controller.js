@@ -88,123 +88,192 @@ const generateInvoiceHTML = ({ seller, paymentId, amount, startDate, nextBilling
 </html>
 `;
 
-// create subscription, called after email verification. Creates a Razorpay subscription and
-// returns the subscription_id to the frontend to open Razorpay checkout.
+// Create Subscription
+// Called after seller verifies email.
+// Creates a Razorpay Subscription and returns subscription_id
+// to frontend so Checkout can be opened.
 
 const createSubscription = asyncHandler(async (req, res) => {
 
     const seller = await Seller.findById(req.user._id);
 
+    if (!seller) {
+        throw new APIError(404, "Seller not found");
+    }
+
     if (!seller.isEmailVerified) {
-        throw new APIError(403, "Please verify your email before subscribing");
+        throw new APIError(
+            403,
+            "Please verify your email before subscribing."
+        );
     }
 
     if (seller.subscription.status === "active") {
-        throw new APIError(400, "You already have an active subscription");
+        throw new APIError(
+            400,
+            "You already have an active subscription."
+        );
     }
 
-    // create subscription on Razorpay
+    // Prevent creating duplicate pending subscriptions
+    if (
+        seller.subscription.status === "pending" &&
+        seller.subscription.razorpaySubscriptionId
+    ) {
+
+        return res.status(200).json(
+            new APIResponse(
+                200,
+                {
+                    subscriptionId:
+                        seller.subscription.razorpaySubscriptionId,
+
+                    razorpayKeyId:
+                        process.env.RAZORPAY_KEY_ID,
+
+                    amount: PLAN_AMOUNT,
+
+                    currency: "INR",
+
+                    shopName: seller.shopName,
+
+                    email: seller.email
+                },
+                "Pending subscription already exists."
+            )
+        );
+    }
+
+    // Create Razorpay Subscription
+
     const subscription = await razorpay.subscriptions.create({
+
         plan_id: process.env.RAZORPAY_PLAN_ID,
-        total_count: 12, 
+        total_count: 12,
         quantity: 1,
         notes: {
             sellerId: seller._id.toString(),
             shopName: seller.shopName,
-            email: seller.email,
-        },
+            email: seller.email
+        }
     });
 
-    // save subscription id as pending
-    seller.subscription.razorpaySubscriptionId = subscription.id;
     seller.subscription.status = "pending";
-    seller.subscription.planId = process.env.RAZORPAY_PLAN_ID;
-    await seller.save({ validateBeforeSave: false });
+
+    seller.subscription.planId =
+        process.env.RAZORPAY_PLAN_ID;
+
+    seller.subscription.razorpaySubscriptionId =
+        subscription.id;
+
+    seller.subscription.razorpayCustomerId =
+        subscription.customer_id ?? null;
+
+    await seller.save({
+        validateBeforeSave: false
+    });
 
     return res.status(200).json(
-        new APIResponse(200, {
-            subscriptionId: subscription.id,
-            razorpayKeyId: process.env.RAZORPAY_KEY_ID,
-            amount: PLAN_AMOUNT,
-            currency: "INR",
-            shopName: seller.shopName,
-            email: seller.email,
-        }, "Subscription created. Complete payment to activate your shop.")
+
+        new APIResponse(
+
+            200,
+
+            {
+
+                subscriptionId: subscription.id,
+
+                razorpayKeyId:
+                    process.env.RAZORPAY_KEY_ID,
+
+                amount: PLAN_AMOUNT,
+
+                currency: "INR",
+
+                shopName: seller.shopName,
+
+                email: seller.email
+            },
+
+            "Subscription created successfully."
+
+        )
+
     );
+
 });
 
-// verify payment , clled after Razorpay checkout succeeds on the frontend.
-// Verifies the payment signature, activates subscription, sends invoice.
+// ────────────────────────────────────────────────────────────────
+// Verify first payment
+//
+// This only verifies Razorpay signature.
+//
+// DO NOT:
+// - activate subscription
+// - send invoice
+// - update billing dates
+//
+// Razorpay Webhook is the single source of truth.
+// ────────────────────────────────────────────────────────────────
 
 const verifyPayment = asyncHandler(async (req, res) => {
+
     const {
+
         razorpay_payment_id,
+
         razorpay_subscription_id,
-        razorpay_signature,
+
+        razorpay_signature
+
     } = req.body;
 
     if (!razorpay_payment_id || !razorpay_subscription_id || !razorpay_signature) {
-        throw new APIError(400, "Payment verification details are incomplete");
+        throw new APIError(
+            400,
+            "Incomplete payment details."
+        );
+
     }
 
-    // verify signature (MI)
-    const expectedSignature = crypto
-        .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-        .update(`${razorpay_payment_id}|${razorpay_subscription_id}`)
+    const expectedSignature = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+        .update(
+            `${razorpay_payment_id}|${razorpay_subscription_id}`
+        )
         .digest("hex");
 
     if (expectedSignature !== razorpay_signature) {
-        throw new APIError(400, "Payment signature verification failed");
+
+        throw new APIError(
+            400,
+            "Payment signature verification failed."
+        );
+
     }
 
-    const seller = await Seller.findOne({
-        "subscription.razorpaySubscriptionId": razorpay_subscription_id,
-    });
+    const seller = await Seller.findOne({ "subscription.razorpaySubscriptionId": razorpay_subscription_id });
 
     if (!seller) {
-        throw new APIError(404, "Seller not found for this subscription");
+        throw new APIError(
+            404,
+            "Seller not found."
+        );
     }
 
-    const now = new Date();
-    const nextBillingDate = new Date(now);
-    nextBillingDate.setMonth(nextBillingDate.getMonth() + 1);
-
-    seller.subscription.status = "active";
-    seller.subscription.startDate = now;
-    seller.subscription.lastPaymentDate = now;
-    seller.subscription.nextBillingDate = nextBillingDate;
-    seller.subscription.endDate = nextBillingDate;
-    await seller.save({ validateBeforeSave: false });
-
-
-    const invoiceHTML = generateInvoiceHTML({
-        seller,
-        paymentId: razorpay_payment_id,
-        amount: PLAN_AMOUNT,
-        startDate: now,
-        nextBillingDate,
-    });
-
-    await Promise.all([
-        sendEmail({
-            to: seller.email,
-            subject: `Payment Confirmed — ${process.env.APP_NAME ?? "Marketplace"} Subscription`,
-            html: invoiceHTML,
-        }),
-        sendEmail({
-            to: ADMIN_EMAIL,
-            subject: `New Subscription Payment — ${seller.shopName}`,
-            html: invoiceHTML,
-        }),
-    ]);
-
     return res.status(200).json(
-        new APIResponse(200, {
-            status: seller.subscription.status,
-            startDate: seller.subscription.startDate,
-            nextBillingDate: seller.subscription.nextBillingDate,
-        }, "Payment verified. Your shop is now active and pending admin approval.")
+        new APIResponse(
+            200,
+            {
+                verified: true,
+
+            },
+
+            "Payment verified successfully. Waiting for Razorpay confirmation."
+
+        )
+
     );
+
 });
 
 // ─── WEBHOOK HANDLER ──────────────────────────────────────────────────────────
@@ -212,133 +281,405 @@ const verifyPayment = asyncHandler(async (req, res) => {
 // Register this URL on Razorpay dashboard → Webhooks.
 // This route must be excluded from verifyJWT — it comes from Razorpay, not the seller.
 
+// ────────────────────────────────────────────────────────────────
+// Razorpay Webhook
+//
+// Source of truth for subscription lifecycle.
+//
+// NOTE:
+// - Route MUST NOT use verifyJWT
+// - Route MUST use express.raw()
+// - Verify signature BEFORE parsing JSON
+// ────────────────────────────────────────────────────────────────
+
 const webhookHandler = asyncHandler(async (req, res) => {
-    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
+
     const signature = req.headers["x-razorpay-signature"];
 
-    // verify webhook signature
     const expectedSignature = crypto
-        .createHmac("sha256", webhookSecret)
-        .update(JSON.stringify(req.body))
+        .createHmac(
+            "sha256",
+            process.env.RAZORPAY_WEBHOOK_SECRET
+        )
+        .update(req.body)
         .digest("hex");
 
-    if (expectedSignature !== signature) {
+    if (signature !== expectedSignature) {
         throw new APIError(400, "Invalid webhook signature");
     }
 
-    const event = req.body.event;
-    const payload = req.body.payload?.subscription?.entity;
+    // Parse body AFTER verification
 
-    if (!payload) {
-        return res.status(200).json({ received: true }); // ack unknown events
+    const body = JSON.parse(req.body.toString());
+
+    const event = body.event;
+
+    const subscription =
+        body.payload?.subscription?.entity;
+
+    if (!subscription) {
+        return res.status(200).json({
+            received: true
+        });
     }
 
     const seller = await Seller.findOne({
-        "subscription.razorpaySubscriptionId": payload.id,
+        "subscription.razorpaySubscriptionId":
+            subscription.id
     });
 
     if (!seller) {
-        return res.status(200).json({ received: true }); // ack but don't crash
+
+        return res.status(200).json({
+            received: true
+        });
+
     }
+
+    // Payment entity exists only on payment related events
+
+    const payment =
+        body.payload?.payment?.entity ?? null;
+
+    const paymentId =
+        payment?.id ?? null;
 
     switch (event) {
 
-        // ── Renewal payment succeeded ─────────────────────────────────────────
+        // ==========================================================
+        // FIRST PAYMENT SUCCESS
+        // ==========================================================
+
+        case "subscription.activated":
+
+        // ==========================================================
+        // RECURRING PAYMENT SUCCESS
+        // ==========================================================
+
         case "subscription.charged": {
-            const now = new Date();
-            const nextBillingDate = new Date(now);
-            nextBillingDate.setMonth(nextBillingDate.getMonth() + 1);
+
+            // ---------------------------------------------
+            // Prevent duplicate webhook execution
+            // Razorpay can resend webhooks.
+            // ---------------------------------------------
+
+            if (
+                paymentId &&
+                seller.subscription.processedPayments.includes(paymentId)
+            ) {
+
+                return res.status(200).json({
+                    received: true
+                });
+
+            }
+
+            if (paymentId) {
+                seller.subscription.processedPayments.push(
+                    paymentId
+                );
+            }
+
+            // ---------------------------------------------
+            // Razorpay timestamps
+            // ---------------------------------------------
+
+            const currentStart =
+                subscription.current_start
+                    ? new Date(subscription.current_start * 1000)
+                    : new Date();
+
+            const currentEnd =
+                subscription.current_end
+                    ? new Date(subscription.current_end * 1000)
+                    : null;
+
+            const nextBilling =
+                subscription.charge_at
+                    ? new Date(subscription.charge_at * 1000)
+                    : currentEnd;
 
             seller.subscription.status = "active";
-            seller.subscription.lastPaymentDate = now;
-            seller.subscription.nextBillingDate = nextBillingDate;
-            seller.subscription.endDate = nextBillingDate;
-            await seller.save({ validateBeforeSave: false });
 
-            const paymentId = req.body.payload?.payment?.entity?.id ?? "N/A";
-            const invoiceHTML = generateInvoiceHTML({
-                seller,
-                paymentId,
-                amount: PLAN_AMOUNT,
-                startDate: now,
-                nextBillingDate,
+            seller.subscription.planId =
+                subscription.plan_id;
+
+            seller.subscription.razorpayCustomerId =
+                subscription.customer_id ?? null;
+
+            seller.subscription.startDate ??=
+                currentStart;
+
+            seller.subscription.currentPeriodStart =
+                currentStart;
+
+            seller.subscription.currentPeriodEnd =
+                currentEnd;
+
+            seller.subscription.endDate =
+                currentEnd;
+
+            seller.subscription.lastPaymentDate =
+                new Date();
+
+            seller.subscription.nextBillingDate =
+                nextBilling;
+
+            await seller.save({
+                validateBeforeSave: false
             });
+
+            // ---------------------------------------------
+            // Invoice
+            // ---------------------------------------------
+
+            const invoiceHTML =
+                generateInvoiceHTML({
+
+                    seller,
+
+                    paymentId:
+                        paymentId ?? "N/A",
+
+                    amount:
+                        payment?.amount
+                            ? payment.amount / 100
+                            : PLAN_AMOUNT,
+
+                    startDate:
+                        currentStart,
+
+                    nextBillingDate:
+                        nextBilling
+
+                });
 
             await Promise.all([
+
                 sendEmail({
+
                     to: seller.email,
-                    subject: `Subscription Renewed — ${process.env.APP_NAME ?? "Marketplace"}`,
-                    html: invoiceHTML,
+
+                    subject:
+                        event === "subscription.activated"
+
+                            ? `Subscription Activated — ${process.env.APP_NAME}`
+
+                            : `Subscription Renewed — ${process.env.APP_NAME}`,
+
+                    html:
+                        invoiceHTML
+
                 }),
+
                 sendEmail({
+
                     to: ADMIN_EMAIL,
-                    subject: `Subscription Renewed — ${seller.shopName}`,
-                    html: invoiceHTML,
-                }),
+
+                    subject:
+
+                        event === "subscription.activated"
+
+                            ? `New Seller Subscription — ${seller.shopName}`
+
+                            : `Subscription Renewed — ${seller.shopName}`,
+
+                    html:
+                        invoiceHTML
+
+                })
+
             ]);
+
             break;
         }
+        // ==========================================================
+        // PAYMENT FAILED
+        // Razorpay is retrying payment.
+        // Seller still has a chance to recover subscription.
+        // ==========================================================
 
-        // ── Payment failed (Razorpay will retry) ──────────────────────────────
-        case "subscription.payment.failed": {
-            seller.subscription.status = "expired";
-            await seller.save({ validateBeforeSave: false });
+        case "subscription.pending": {
+
+            seller.subscription.status = "past_due";
+
+            await seller.save({
+                validateBeforeSave: false
+            });
 
             await sendEmail({
+
                 to: seller.email,
+
                 subject: `Subscription Payment Failed — Action Required`,
-                html: `<p>Hi ${seller.fullName}, your subscription payment failed. Please update your payment method to keep your shop active.</p>`,
+
+                html: `
+                    <p>Hi ${seller.fullName},</p>
+
+                    <p>
+                        We couldn't process your subscription payment.
+                    </p>
+
+                    <p>
+                        Razorpay will automatically retry the payment.
+                    </p>
+
+                    <p>
+                        Please ensure that your payment method has sufficient balance.
+                    </p>
+
+                    <p>
+                        If payment continues to fail your subscription may be halted.
+                    </p>
+                `
             });
+
             break;
         }
 
-        // ── Seller cancelled subscription ─────────────────────────────────────
-        case "subscription.cancelled": {
-            seller.subscription.status = "cancelled";
-            await seller.save({ validateBeforeSave: false });
+        // ==========================================================
+        // ALL RETRIES FAILED
+        // Subscription is now halted.
+        // ==========================================================
+
+        case "subscription.halted": {
+
+            seller.subscription.status = "expired";
+
+            await seller.save({
+                validateBeforeSave: false
+            });
 
             await sendEmail({
+
                 to: seller.email,
-                subject: `Subscription Cancelled — ${process.env.APP_NAME ?? "Marketplace"}`,
-                html: `<p>Hi ${seller.fullName}, your subscription has been cancelled. Your shop will be deactivated at the end of the current billing period.</p>`,
+
+                subject: `Subscription Halted — ${process.env.APP_NAME}`,
+
+                html: `
+                    <p>Hi ${seller.fullName},</p>
+
+                    <p>
+                        Your subscription has been halted because all automatic
+                        payment retries have failed.
+                    </p>
+
+                    <p>
+                        Please renew your subscription to reactivate your shop.
+                    </p>
+                `
             });
+
             break;
         }
 
-        // ── Subscription completed (all billing cycles done) ──────────────────
-        case "subscription.completed": {
-            seller.subscription.status = "expired";
-            await seller.save({ validateBeforeSave: false });
+        // ==========================================================
+        // SELLER CANCELLED
+        // ==========================================================
+
+        case "subscription.cancelled": {
+
+            seller.subscription.status = "cancelled";
+
+            await seller.save({
+                validateBeforeSave: false
+            });
+
+            await sendEmail({
+
+                to: seller.email,
+
+                subject: `Subscription Cancelled — ${process.env.APP_NAME}`,
+
+                html: `
+                    <p>Hi ${seller.fullName},</p>
+
+                    <p>
+                        Your subscription has been cancelled.
+                    </p>
+
+                    <p>
+                        You will continue to have access until the end of your
+                        current billing cycle.
+                    </p>
+                `
+            });
+
             break;
         }
+
+        // ==========================================================
+        // SUBSCRIPTION COMPLETED
+        // Fixed billing count reached.
+        // ==========================================================
+
+        case "subscription.completed": {
+
+            seller.subscription.status = "expired";
+
+            await seller.save({
+                validateBeforeSave: false
+            });
+
+            break;
+        }
+
+        // ==========================================================
 
         default:
             break;
+
     }
 
-    return res.status(200).json({ received: true });
+    return res.status(200).json({
+        received: true
+    });
+
 });
 
 // cancel subscription
 
 const cancelSubscription = asyncHandler(async (req, res) => {
+
     const seller = await Seller.findById(req.user._id);
 
-    if (seller.subscription.status !== "active") {
-        throw new APIError(400, "No active subscription to cancel");
+    if (!seller) {
+        throw new APIError(404, "Seller not found");
+    }
+
+    if (
+        !["active", "past_due"].includes(
+            seller.subscription.status
+        )
+    ) {
+        throw new APIError(
+            400,
+            "No active subscription to cancel."
+        );
+    }
+
+    if (!seller.subscription.razorpaySubscriptionId) {
+        throw new APIError(
+            400,
+            "Subscription ID not found."
+        );
     }
 
     await razorpay.subscriptions.cancel(
         seller.subscription.razorpaySubscriptionId,
-        { cancel_at_cycle_end: 1 } 
+        {
+            cancel_at_cycle_end: 1
+        }
     );
 
-    // webhook will update status to "cancelled" — but we note it's in progress
     return res.status(200).json(
-        new APIResponse(200, null,
-            "Cancellation requested. Your shop will remain active until the end of the current billing period."
+        new APIResponse(
+            200,
+            null,
+            "Cancellation requested successfully. Your shop will remain active until the end of the current billing cycle."
         )
     );
+
 });
 
 export {

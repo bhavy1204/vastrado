@@ -97,6 +97,7 @@ const registerSeller = asyncHandler(async (req, res) => {
     await seller.save({ validateBeforeSave: false });
 
     const otp = generateOTP();
+    console.log("OTP FOR SELLER >>>>> ", otp);
     await OTP.findOneAndDelete({ email, purpose: "email-verification" });
     await OTP.create({
         email, otp, purpose: "email-verification",

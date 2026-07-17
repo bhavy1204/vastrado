@@ -146,9 +146,10 @@ const sellerSchema = new mongoose.Schema({
             enum: [
                 "active",
                 "inactive",
+                "pending",
+                "past_due",
                 "cancelled",
-                "expired",
-                "pending"
+                "expired"
             ],
             default: "inactive"
         },
@@ -163,12 +164,27 @@ const sellerSchema = new mongoose.Schema({
             default: null
         },
 
+        razorpayCustomerId: {
+            type: String,
+            default: null
+        },
+
         startDate: {
             type: Date,
             default: null
         },
 
         endDate: {
+            type: Date,
+            default: null
+        },
+
+        currentPeriodStart: {
+            type: Date,
+            default: null
+        },
+
+        currentPeriodEnd: {
             type: Date,
             default: null
         },
@@ -181,7 +197,11 @@ const sellerSchema = new mongoose.Schema({
         nextBillingDate: {
             type: Date,
             default: null
-        }
+        },
+
+        processedPayments: [{
+            type: String
+        }]
     },
 }, { timestamps: true })
 

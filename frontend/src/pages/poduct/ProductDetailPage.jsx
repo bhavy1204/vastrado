@@ -23,6 +23,7 @@ import Button from "@/components/common/Button";
 import ReviewList from "@/components/product/ReviewList";
 import ReviewForm from "@/components/product/ReviewForm";
 import { Package } from "@phosphor-icons/react";
+import { ArrowRight } from "@phosphor-icons/react";
 
 /**
  * ProductDetailPage — /products/:slug
@@ -53,6 +54,7 @@ export default function ProductDetailPage() {
   } = usePagination(1, 10);
   const [reviews, setReviews] = useState([]);
   const [isLoadingReviews, setIsLoadingReviews] = useState(true);
+
 
   useEffect(() => {
     let isCancelled = false;
@@ -124,7 +126,7 @@ export default function ProductDetailPage() {
   };
 
   const handleWhatsAppEnquiry = () => {
-    const phone = product?.seller?.phone;
+    const phone = product?.sellerId?.whatsappNumber;
     if (!phone) {
       toast.error("This seller hasn't listed a contact number");
       return;
@@ -164,9 +166,9 @@ export default function ProductDetailPage() {
     productDescription,
     type,
     gender,
-    seller,
     variants,
   } = product;
+  const seller = product.sellerId;
   const hasDiscount = discountedPrice && discountedPrice < price;
 
   return (
@@ -240,6 +242,9 @@ export default function ProductDetailPage() {
                   <h3 className="font-semibold text-text transition-colors group-hover:text-primary">
                     {seller.shopName}
                   </h3>
+                  <p className="text-sm -mt-1 text-text-muted capitalize">
+                    {seller.city}
+                  </p>
                 </div>
               </div>
               <span className="text-sm font-medium text-primary">

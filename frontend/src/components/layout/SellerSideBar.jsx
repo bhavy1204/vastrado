@@ -6,8 +6,8 @@ import {
   CreditCard,
 } from "@phosphor-icons/react";
 
+// { to: "/seller/dashboard", label: "Dashboard", icon: SquaresFour, end: true },
 const NAV_ITEMS = [
-  { to: "/seller/dashboard", label: "Dashboard", icon: SquaresFour, end: true },
   { to: "/seller/products", label: "Products", icon: Package },
   { to: "/seller/profile", label: "My shop", icon: Storefront },
   { to: "/seller/subscription", label: "Subscription", icon: CreditCard },
