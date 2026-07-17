@@ -5,7 +5,7 @@ import { APIError } from "../utils/apiError.js";
 import { APIResponse } from "../utils/apiResponse.js";
 import { Product } from "../models/product.model.js";
 import { Seller } from "../models/seller.model.js";
-import { uploadToB2 } from "../utils/b2.js";
+import { uploadToB2 } from "../utils/B2.js";
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
 
