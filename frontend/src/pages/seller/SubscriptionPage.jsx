@@ -62,17 +62,17 @@ export default function SellerSubscriptionPage() {
     try {
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {
-        toast.error("Couldn't load the payment gateway. Check your connection.");
+        toast.error(
+          "Couldn't load the payment gateway. Check your connection.",
+        );
         return;
       }
 
       const { data: order } = await paymentService.createSubscription();
 
       const razorpay = new window.Razorpay({
-        key: order.keyId,
-        amount: order.amount,
-        currency: order.currency || "INR",
-        order_id: order.orderId,
+        key: order.data.razorpayKeyId,
+        subscription_id: order.data.subscriptionId,
         name: "ClothMarket",
         description: "Monthly seller subscription",
         prefill: { name: seller?.shopName, email: seller?.email },
@@ -80,8 +80,8 @@ export default function SellerSubscriptionPage() {
         handler: async (response) => {
           try {
             await paymentService.verifyPayment({
-              razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_subscription_id: response.razorpay_subscription_id,
               razorpay_signature: response.razorpay_signature,
             });
             toast.success("Subscription activated");
@@ -89,24 +89,34 @@ export default function SellerSubscriptionPage() {
             const res = await sellerService.getSubscription();
             setSubscription(res.data.data);
           } catch (err) {
-            toast.error(err?.response?.data?.message || "Payment verification failed");
+            toast.error(
+              err?.response?.data?.message || "Payment verification failed",
+            );
           }
         },
         modal: {
           ondismiss: () => setIsProcessing(false),
         },
       });
+      // console.log(window.Razorpay);
 
       razorpay.open();
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Couldn't start the payment process");
+      toast.error(
+        err?.response?.data?.message || "Couldn't start the payment process",
+      );
     } finally {
       setIsProcessing(false);
     }
   };
 
   const handleCancel = async () => {
-    if (!window.confirm("Cancel your subscription? Your shop will stop appearing in search once it expires.")) return;
+    if (
+      !window.confirm(
+        "Cancel your subscription? Your shop will stop appearing in search once it expires.",
+      )
+    )
+      return;
     setIsProcessing(true);
     try {
       await paymentService.cancelSubscription();
@@ -115,7 +125,9 @@ export default function SellerSubscriptionPage() {
       const res = await sellerService.getSubscription();
       setSubscription(res.data.data);
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Couldn't cancel your subscription");
+      toast.error(
+        err?.response?.data?.message || "Couldn't cancel your subscription",
+      );
     } finally {
       setIsProcessing(false);
     }
@@ -139,13 +151,16 @@ export default function SellerSubscriptionPage() {
         </div>
 
         <div className="flex items-baseline gap-1">
-          <span className="text-2xl font-bold text-text">{formatPrice(MONTHLY_PRICE)}</span>
+          <span className="text-2xl font-bold text-text">
+            {formatPrice(MONTHLY_PRICE)}
+          </span>
           <span className="text-sm text-text-muted">/ month</span>
         </div>
 
         {subscription?.nextBillingDate && (
           <p className="text-xs text-text-muted">
-            {isActive ? "Renews" : "Expired"} on {formatDate(subscription.nextBillingDate)}
+            {isActive ? "Renews" : "Expired"} on{" "}
+            {formatDate(subscription.nextBillingDate)}
           </p>
         )}
 
@@ -156,7 +171,11 @@ export default function SellerSubscriptionPage() {
         </ul>
 
         {isActive ? (
-          <Button variant="secondary" isLoading={isProcessing} onClick={handleCancel}>
+          <Button
+            variant="secondary"
+            isLoading={isProcessing}
+            onClick={handleCancel}
+          >
             Cancel subscription
           </Button>
         ) : (
@@ -174,7 +193,10 @@ export default function SellerSubscriptionPage() {
       {!isActive && (
         <div className="flex items-start gap-2 text-xs text-text-muted">
           <WarningCircle size={14} className="shrink-0 mt-0.5" />
-          <span>Your shop stays hidden from customers until your subscription is active.</span>
+          <span>
+            Your shop stays hidden from customers until your subscription is
+            active.
+          </span>
         </div>
       )}
     </div>
@@ -189,4 +211,3 @@ function Feature({ children }) {
     </li>
   );
 }
-

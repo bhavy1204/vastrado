@@ -6,6 +6,9 @@ import morgan from "morgan";
 import { APIError } from "./src/utils/apiError.js";
 import { errorMiddleware } from "./src/middleware/error.middleware.js"
 
+// webhookhandler for payments
+import { webhookHandler } from "./src/controllers/payment.controller.js";
+
 // Routes
 import healthCheckRouter from "./src/routes/healthCheck.route.js";
 import adminRouter from "./src/routes/admin.route.js"
@@ -37,11 +40,11 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }))
 
-app.use(
+app.post(
     "/api/v1/payment/webhook",
     express.raw({ type: "application/json" }),
-    paymentRouter
-)
+    webhookHandler
+);
 
 app.use(express.json({ limit: '5mb' }));
 

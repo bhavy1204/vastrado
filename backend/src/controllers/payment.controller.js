@@ -293,7 +293,10 @@ const verifyPayment = asyncHandler(async (req, res) => {
 // ────────────────────────────────────────────────────────────────
 
 const webhookHandler = asyncHandler(async (req, res) => {
-
+    console.log("Webhook reached");
+    console.log("Content-Type:", req.headers["content-type"]);
+    console.log("Is Buffer:", Buffer.isBuffer(req.body));
+    
     const signature = req.headers["x-razorpay-signature"];
 
     const expectedSignature = crypto
