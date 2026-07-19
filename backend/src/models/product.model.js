@@ -132,11 +132,7 @@ const productSchema = new mongoose.Schema(
             type: Boolean,
             default: true,
         },
-    },
-    {
-        timestamps: true,
-    }
-);
+    },{timestamps: true,});
 
 productSchema.index({ productType: 1 });
 productSchema.index({ createdAt: -1 });

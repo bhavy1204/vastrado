@@ -44,7 +44,7 @@ const registerUser = asyncHandler(async (req, res) => {
     const otp = generateOTP();
 
     await OTP.findOneAndDelete({ email, purpose: "email-verification" });
-
+    console.log("OTP of user >> ", otp)
     await OTP.create({
         email,
         otp,

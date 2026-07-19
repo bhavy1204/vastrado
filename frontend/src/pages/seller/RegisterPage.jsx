@@ -304,6 +304,13 @@ export default function SellerRegisterPage() {
             </Button>
           </div>
 
+          <Input
+            label="Google Map Link"
+            helperText="Used for seller's google map address"
+            error={errors.googleMapLink?.message}
+            {...register("googleMapLink")}
+          />
+
           <Button
             type="submit"
             variant="primary"

@@ -1,6 +1,6 @@
 import mongoose from "mongoose"
 import jwt from "jsonwebtoken"
-import bcrypt from "bcryptjs"
+import bcrypt, { truncates } from "bcryptjs"
 
 const sellerSchema = new mongoose.Schema({
     fullName: {
@@ -96,6 +96,10 @@ const sellerSchema = new mongoose.Schema({
             type: [Number], // [lng, lat]
             required: true
         }
+    },
+    googleMapLink:{
+        type:String,
+        trim:true
     },
     avatar: {
         type: String,

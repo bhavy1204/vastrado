@@ -91,6 +91,7 @@ export const sellerRegisterSchema = z
         postalCode: z.string().trim(),
         shopDescription: z.string().trim().max(500).optional(),
         password: passwordSchema,
+        googleMapLink:optionalString,
         confirmPassword: z.string().min(1, "Please confirm your password"),
     })
     .refine((data) => data.password === data.confirmPassword, {

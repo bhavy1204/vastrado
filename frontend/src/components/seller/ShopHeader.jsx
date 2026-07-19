@@ -159,7 +159,13 @@ export default function ShopHeader({
               variant="secondary"
               size="sm"
               leftIcon={<MapPin size={15} />}
-              onClick={onOpenLocation}
+              onClick={() =>
+                window.open(
+                  `${seller.googleMapLink}`,
+                  "_blank",
+                  "noopener,noreferrer",
+                )
+              }
             >
               Location
             </Button>
