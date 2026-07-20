@@ -9,6 +9,12 @@ const productSchema = new mongoose.Schema(
             index: true,
         },
 
+        cityId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "City",
+            required: [true, "City ID is required"],
+        },
+
         productName: {
             type: String,
             required: [true, "Product name is required"],
@@ -108,7 +114,7 @@ const productSchema = new mongoose.Schema(
                 validator: arr => arr.length >= 1,
                 message: "At least one size variant is required"
             }
-        } ,
+        },
 
         averageRating: {
             type: Number,
@@ -132,7 +138,7 @@ const productSchema = new mongoose.Schema(
             type: Boolean,
             default: true,
         },
-    },{timestamps: true,});
+    }, { timestamps: true, });
 
 productSchema.index({ productType: 1 });
 productSchema.index({ createdAt: -1 });

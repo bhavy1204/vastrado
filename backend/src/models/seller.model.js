@@ -1,6 +1,7 @@
 import mongoose from "mongoose"
 import jwt from "jsonwebtoken"
 import bcrypt, { truncates } from "bcryptjs"
+import { City } from "./city.model.js"
 
 const sellerSchema = new mongoose.Schema({
     fullName: {
@@ -111,21 +112,11 @@ const sellerSchema = new mongoose.Schema({
         trim: true,
         default: process.env.DEFAULT_SELLER_BANNER_URL
     },
-    city: {
-        type: String,
-        required: true,
-        lowercase: true,
-        trim: true
-    },
-    state: {
-        type: String,
-        required: true,
-        lowercase: true,
-        trim: true
-    },
-    country: {
-        type: String,
-        default: 'India'
+    cityId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "City",
+        required: [true, "City ID is required"],
+        index: true,
     },
     whatsappNumber: {
         type: String,
