@@ -62,7 +62,7 @@ const citySchema = new mongoose.Schema({
     admin: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Staff",
-        required: [true, "City Admin ID is required"],
+        default:null
     }
 
 }, { timestamps: true })
