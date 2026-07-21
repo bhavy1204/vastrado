@@ -1,4 +1,5 @@
 import axios from "axios";
+import useCityStore from "../store/useCityStore.js"
 
 const BASE_URL =
   import.meta.env.MODE === "development"
@@ -30,6 +31,12 @@ axiosInstance.interceptors.request.use(
 
     if (config.data instanceof FormData) {
       delete config.headers["Content-Type"];
+    }
+
+    const selectedCity = useCityStore.getState().selectedCity;
+
+    if (selectedCity?._id) {
+      config.headers["X-City-Id"] = selectedCity._id;
     }
 
     return config;

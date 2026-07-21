@@ -20,6 +20,9 @@ import sellerRouter from "./src/routes/seller.route.js"
 import siteContentRouter from "./src/routes/siteContent.route.js"
 import cityAdminRouter from "./src/routes/cityAdmin.route.js"
 
+// attach city middleware
+import { attachSelectedCity } from "./src/middleware/selectedCity.middleware.js";
+
 const app = express();
 
 app.use(helmet());
@@ -61,9 +64,9 @@ app.use("/api/v1/healthCheck", healthCheckRouter);
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/cityAdmin", cityAdminRouter);
 app.use("/api/v1/user", userRouter);
-app.use("/api/v1/seller", sellerRouter);
+app.use("/api/v1/seller", attachSelectedCity, sellerRouter);
 app.use("/api/v1/payment", paymentRouter);
-app.use("/api/v1/product", productRouter);
+app.use("/api/v1/product", attachSelectedCity, productRouter);
 app.use("/api/v1/review", reviewRouter);
 app.use("/api/v1/siteContent", siteContentRouter);
 

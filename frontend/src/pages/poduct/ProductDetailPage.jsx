@@ -243,7 +243,7 @@ export default function ProductDetailPage() {
                     {seller.shopName}
                   </h3>
                   <p className="text-sm -mt-1 text-text-muted capitalize">
-                    {seller.city}
+                    {seller.cityId.name}
                   </p>
                 </div>
               </div>

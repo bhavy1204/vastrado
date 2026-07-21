@@ -197,7 +197,7 @@ const getProductById = asyncHandler(async (req, res) => {
     const { productId } = req.params;
 
     const product = await Product.findOne({ _id: productId, isActive: true })
-        .populate("sellerId", "shopName slug city whatsappNumber avatar")
+        .populate("sellerId", "shopName slug cityId whatsappNumber avatar")
         .lean();
 
     if (!product) throw new APIError(404, "Product not found");
@@ -281,6 +281,7 @@ const getMyProducts = asyncHandler(async (req, res) => {
 // ─── GET ALL PRODUCTS (public listing with filters) ───────────────────────────
 
 const getAllProducts = asyncHandler(async (req, res) => {
+    const { cityId } = req.query;
     const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 12));
     const skip = (page - 1) * limit;

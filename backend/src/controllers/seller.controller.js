@@ -8,6 +8,7 @@ import { sendOTPEmail } from "../utils/email.js";
 import { Seller } from "../models/seller.model.js";
 import { Product } from "../models/product.model.js";
 import { OTP } from "../models/otp.model.js";
+import { City } from "../models/city.model.js";
 import { uploadToB2, deleteFromB2 } from "../utils/B2.js";
 import sharp from "sharp";
 
@@ -49,7 +50,7 @@ const registerSeller = asyncHandler(async (req, res) => {
     const {
         fullName, username, shopName, shopDescription, shopCategory,
         email, password, phone, whatsappNumber, altPhone,
-        addressLine1, addressLine2, city, state, postalCode, location, googleMapLink
+        addressLine1, addressLine2, cityId, postalCode, location, googleMapLink
     } = req.body;
 
     const [existingEmail, existingUsername] = await Promise.all([
@@ -62,11 +63,21 @@ const registerSeller = asyncHandler(async (req, res) => {
     if (existingUsername)
         throw new APIError(409, "Username is already taken");
 
+    const city = await City.findById(cityId);
+
+    if (!city) {
+        throw new APIError(404, "Selected city does not exist");
+    }
+
+    if (!city.isActive) {
+        throw new APIError(400, "Selected city is currently unavailable");
+    }
+
 
     const seller = await Seller.create({
         fullName, username, shopName, shopDescription,
         shopCategory, email, password, phone, whatsappNumber,
-        altPhone, addressLine1, addressLine2, city, state,
+        altPhone, addressLine1, addressLine2, cityId,
         postalCode, location, googleMapLink,
         slug: `${slugify(shopName, { lower: true, strict: true })}-placeholder`,
     });
@@ -371,7 +382,8 @@ const getSellerPublicProfile = asyncHandler(async (req, res) => {
     const { slug } = req.params;
 
     const seller = await Seller.findOne({ slug, status: "approved" })
-        .select("fullName shopName shopDescription shopCategory avatar banner city state whatsappNumber slug averageRating status phone createdAt googleMapLink")
+        .select("fullName shopName shopDescription shopCategory avatar banner cityId whatsappNumber slug averageRating status phone createdAt googleMapLink")
+        .populate("cityId", "name state")
         .lean();
 
     if (!seller)
@@ -417,7 +429,7 @@ const updateSellerProfile = asyncHandler(async (req, res) => {
     const allowedFields = [
         "fullName", "shopName", "shopDescription", "shopCategory",
         "phone", "whatsappNumber", "altPhone",
-        "addressLine1", "addressLine2", "city", "state", "postalCode"
+        "addressLine1", "addressLine2", "postalCode"
     ];
 
     const updates = {};

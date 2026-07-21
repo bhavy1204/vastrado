@@ -70,15 +70,9 @@ export const validateSellerRegister = [
         .trim()
         .isLength({ max: 100 }).withMessage("Address line 2 must be at most 100 characters"),
 
-    body("city")
-        .trim()
-        .notEmpty().withMessage("City is required")
-        .isLength({ max: 50 }).withMessage("City must be at most 50 characters"),
-
-    body("state")
-        .trim()
-        .notEmpty().withMessage("State is required")
-        .isLength({ max: 50 }).withMessage("State must be at most 50 characters"),
+    body("cityId")
+        .isMongoId()
+        .notEmpty().withMessage("City ID is required"),
 
     body("postalCode")
         .trim()
@@ -164,15 +158,11 @@ export const validateSellerUpdateProfile = [
         .trim()
         .isLength({ max: 100 }).withMessage("Address line 2 must be at most 100 characters"),
 
-    body("city")
+    body("cityId")
         .optional()
         .trim()
+        .isMongoId()
         .isLength({ max: 50 }).withMessage("City must be at most 50 characters"),
-
-    body("state")
-        .optional()
-        .trim()
-        .isLength({ max: 50 }).withMessage("State must be at most 50 characters"),
 
     body("postalCode")
         .optional()

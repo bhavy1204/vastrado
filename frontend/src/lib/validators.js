@@ -71,32 +71,65 @@ export const addressSchema = z.object({
 export const sellerRegisterSchema = z
     .object({
         shopName: z.string().trim().min(2, "Shop name is required").max(80),
+
         username: z
             .string()
             .trim()
             .toLowerCase()
             .min(3, "Username too short")
             .max(30)
-            .regex(/^[a-z0-9_]+$/, "Only lowercase letters, numbers, underscores"),
+            .regex(
+                /^[a-z0-9_]+$/,
+                "Only lowercase letters, numbers and underscores are allowed"
+            ),
+
         email: emailSchema,
+
         phone: phoneSchema,
-        fullName: z.string().trim().min(2, "Name is too short").max(60),
-        altPhone: phoneSchema,
-        shopCategory: z.string().trim(),
+
+        fullName: z
+            .string()
+            .trim()
+            .min(2, "Name is too short")
+            .max(60),
+
+        altPhone: optionalString.refine(
+            (val) => !val || /^[6-9]\d{9}$/.test(val),
+            "Enter a valid 10-digit Indian phone number"
+        ),
+
         whatsappNumber: phoneSchema,
-        addressLine1: z.string(),
-        addressLine2: z.string(),
-        city: z.string().trim(),
-        state: z.string().trim(),
-        postalCode: z.string().trim(),
-        shopDescription: z.string().trim().max(500).optional(),
+
+        shopCategory: z.string().trim().min(1, "Select a shop category"),
+
+        addressLine1: z
+            .string()
+            .trim()
+            .min(5, "Address is required"),
+
+        addressLine2: optionalString,
+
+        cityId: z.string().trim().min(2, "City is required"),
+
+        postalCode: z
+            .string()
+            .trim()
+            .regex(/^\d{6}$/, "Enter a valid PIN code"),
+
+        shopDescription: optionalString.refine(
+            (val) => !val || val.length <= 500,
+            "Maximum 500 characters allowed"
+        ),
+
+        googleMapLink: optionalString.url("Enter a valid Google Maps link"),
+
         password: passwordSchema,
-        googleMapLink:optionalString,
+
         confirmPassword: z.string().min(1, "Please confirm your password"),
     })
     .refine((data) => data.password === data.confirmPassword, {
-        message: "Passwords do not match",
         path: ["confirmPassword"],
+        message: "Passwords do not match",
     });
 
 
@@ -116,8 +149,7 @@ export const sellerProfileUpdateSchema = z.object({
     altPhone: phoneSchema.optional().or(z.literal("")),
     addressLine1: z.string().trim().min(5).optional(),
     addressLine2: z.string().trim().optional(),
-    city: z.string().trim().min(2).optional(),
-    state: z.string().trim().min(2).optional(),
+    cityId: z.string().trim().min(2).optional(),
     postalCode: z.string().regex(/^\d{6}$/).optional(),
 });
 
@@ -181,6 +213,80 @@ export const reviewSchema = z.object({
 export const faqSchema = z.object({
     question: z.string().trim().min(5, "Question is too short").max(300),
     answer: z.string().trim().min(5, "Answer is too short").max(1000),
+});
+
+// =========================
+// City
+// =========================
+
+export const createCitySchema = z.object({
+    name: z.string().trim().min(2, "City name is required").max(60),
+
+    state: z.string().trim().min(2, "State is required").max(60),
+
+    country: z
+        .string()
+        .trim()
+        .default("india"),
+
+    settings: z.object({
+        deliveryCharge: z
+            .coerce
+            .number()
+            .min(0, "Delivery charge cannot be negative"),
+
+        freeDeliveryAbove: z
+            .coerce
+            .number()
+            .min(0, "Free delivery amount cannot be negative"),
+
+        allowedCOD: z.boolean(),
+
+        supportEmail: emailSchema,
+
+        supportPhone: phoneSchema,
+    }),
+});
+
+// =========================
+// Staff
+// =========================
+
+export const createStaffSchema = z.object({
+    fullName: z
+        .string()
+        .trim()
+        .min(2, "Full name is required")
+        .max(60),
+
+    email: emailSchema,
+
+    password: passwordSchema,
+
+    phone: phoneSchema,
+
+    altPhone: optionalString.refine(
+        (val) => !val || /^[6-9]\d{9}$/.test(val),
+        "Enter a valid 10-digit Indian phone number"
+    ),
+
+    role: z.enum([
+        "city-admin",
+        "delivery-agent",
+        "support-team",
+    ]),
+
+    cityId: z.string().min(1, "City is required"),
+
+    avatar: optionalString,
+});
+
+// =========================
+// Seller Search
+// =========================
+
+export const sellerSearchSchema = z.object({
+    email: emailSchema,
 });
 
 

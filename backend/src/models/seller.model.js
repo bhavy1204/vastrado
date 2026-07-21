@@ -215,9 +215,8 @@ sellerSchema.pre("save", async function (next) {
         let count = 1
 
         while (await Seller.findOne({ slug, _id: { $ne: this._id } })) {
-            slug = `${baseSlug}-${this.city.toLowerCase()}`
-            if (count > 1) slug = `${baseSlug}-${count}`
-            count++
+            slug = `${baseSlug}-${count}`;
+            count++;
         }
 
         this.slug = slug
