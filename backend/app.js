@@ -18,6 +18,7 @@ import productRouter from "./src/routes/product.route.js"
 import reviewRouter from "./src/routes/review.route.js"
 import sellerRouter from "./src/routes/seller.route.js"
 import siteContentRouter from "./src/routes/siteContent.route.js"
+import cityAdminRouter from "./src/routes/cityAdmin.route.js"
 
 const app = express();
 
@@ -58,11 +59,12 @@ app.use(express.static("public"));
 // Routes Declaration
 app.use("/api/v1/healthCheck", healthCheckRouter);
 app.use("/api/v1/admin", adminRouter);
+app.use("/api/v1/cityAdmin", cityAdminRouter);
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/seller", sellerRouter);
 app.use("/api/v1/payment", paymentRouter);
 app.use("/api/v1/product", productRouter);
 app.use("/api/v1/review", reviewRouter);
-app.use("/api/v1/seller", sellerRouter);
 app.use("/api/v1/siteContent", siteContentRouter);
 
 app.use(errorMiddleware);
