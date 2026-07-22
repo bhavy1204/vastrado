@@ -14,6 +14,7 @@ import { userService } from "@/api/index";
 import { sellerService } from "@/api/index";
 import toast from "react-hot-toast";
 import Input from "../common/Input.jsx";
+import CitySelector from "../common/CitySelector.jsx";
 
 /**
  * Navbar
@@ -91,7 +92,10 @@ export default function Navbar() {
           <MagnifyingGlass size={20} />
         </Link>
 
-        <div className="relative ml-auto sm:ml-0" ref={menuRef}>
+        <div className="flex items-center gap-2 shrink-0 ml-auto sm:ml-0">
+          <CitySelector className="w-36 sm:w-44" />
+
+          <div className="relative" ref={menuRef}>
           <button
             type="button"
             onClick={() => setIsMenuOpen((prev) => !prev)}
@@ -195,6 +199,7 @@ export default function Navbar() {
               )}
             </div>
           )}
+          </div>
         </div>
       </div>
     </header>

@@ -121,7 +121,7 @@ export const sellerRegisterSchema = z
             "Maximum 500 characters allowed"
         ),
 
-        googleMapLink: optionalString.url("Enter a valid Google Maps link"),
+        googleMapLink: optionalString,
 
         password: passwordSchema,
 

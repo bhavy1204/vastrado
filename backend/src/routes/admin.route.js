@@ -10,7 +10,7 @@ import {
     getUserByEmail,
     deleteUser,
     getDashboardStats,
-} from "../controllers/admin.controller.js";
+} from "../controllers/superAdmin.controller.js";
 
 import {
     createCity,

@@ -44,6 +44,8 @@ import AdminSellersPage from "@/pages/admin/AdminSellerPage.jsx";
 import AdminUsersPage from "@/pages/admin/AdminUsersPage.jsx";
 import AdminBannersPage from "@/pages/admin/AdminBannerPage.jsx";
 import AdminFAQsPage from "@/pages/admin/AdminFAQsPage.jsx";
+import CityManagement from "@/pages/admin/CityManagement.jsx";
+import StaffManagement from "@/pages/admin/StaffManagement.jsx";
 
 // Temporary placeholder so App.jsx is functional before pages are built
 const Placeholder = ({ name }) => (
@@ -124,6 +126,8 @@ export default function App() {
           <Route path="/admin/users" element={<AdminUsersPage />} />
           <Route path="/admin/banners" element={<AdminBannersPage />} />
           <Route path="/admin/faqs" element={<AdminFAQsPage />} />
+          <Route path="/admin/cities" element={<CityManagement />} />
+          <Route path="/admin/staff" element={<StaffManagement />} />;
         </Route>
       </Route>
 

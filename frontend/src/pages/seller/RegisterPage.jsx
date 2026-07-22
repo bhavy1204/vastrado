@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "react-router-dom";
@@ -12,7 +12,7 @@ import {
   Image as ImageIcon,
 } from "@phosphor-icons/react";
 import toast from "react-hot-toast";
-import { sellerService } from "@/api/index";
+import { adminService, sellerService } from "@/api/index";
 import { sellerRegisterSchema } from "@/lib/validators";
 import { validateImageFile } from "@/lib/formatters";
 import useGeolocation from "@/lib/useGeoLocation";
@@ -40,6 +40,8 @@ export default function SellerRegisterPage() {
   const [avatarFile, setAvatarFile] = useState(null);
   const [bannerFile, setBannerFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [cities, setCities] = useState([]);
+  const [isLoadingCities, setIsLoadingCities] = useState(true);
 
   const {
     register,
@@ -47,7 +49,18 @@ export default function SellerRegisterPage() {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(sellerRegisterSchema),
+    defaultValues: { cityId: "" },
   });
+
+  useEffect(() => {
+    adminService
+      .getAllActiveCities()
+      .then((res) => setCities(res.data?.data ?? []))
+      .catch((err) =>
+        toast.error(err?.response?.data?.message || "Couldn't load cities"),
+      )
+      .finally(() => setIsLoadingCities(false));
+  }, []);
 
   const handleFileChange = (e, setFile) => {
     const file = e.target.files?.[0];
@@ -225,17 +238,29 @@ export default function SellerRegisterPage() {
             {...register("addressLine2")}
           />
 
-          <div className="grid grid-cols-2 gap-3">
-            <Input
-              label="City"
-              error={errors.city?.message}
-              {...register("city")}
-            />
-            <Input
-              label="State"
-              error={errors.state?.message}
-              {...register("state")}
-            />
+          <div>
+            <label className="text-sm font-medium text-text block mb-1.5">
+              City
+            </label>
+            <select
+              disabled={isLoadingCities}
+              className="w-full h-11 rounded-md border border-border bg-surface-raised text-sm text-text px-3 capitalize focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary disabled:cursor-not-allowed disabled:opacity-60"
+              {...register("cityId")}
+            >
+              <option value="">
+                {isLoadingCities ? "Loading cities..." : "Select a city"}
+              </option>
+              {cities.map((city) => (
+                <option key={city._id} value={city._id}>
+                  {city.name}
+                </option>
+              ))}
+            </select>
+            {errors.cityId && (
+              <p className="text-xs text-error mt-1">
+                {errors.cityId.message}
+              </p>
+            )}
           </div>
 
           <Input

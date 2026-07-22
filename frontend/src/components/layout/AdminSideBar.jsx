@@ -5,6 +5,7 @@ import {
   Users,
   Image,
   Question,
+  City
 } from "@phosphor-icons/react";
 
 const NAV_ITEMS = [
@@ -13,6 +14,8 @@ const NAV_ITEMS = [
   { to: "/admin/users", label: "Users", icon: Users },
   { to: "/admin/banners", label: "Banners", icon: Image },
   { to: "/admin/faqs", label: "FAQs", icon: Question },
+  { to: "/admin/cities", label: "Cities", icon: City },
+  { to: "/admin/staff", label: "Staff", icon: Users },
 ];
 
 export default function AdminSidebar() {
