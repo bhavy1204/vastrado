@@ -41,6 +41,8 @@ import { verifyAdmin } from "../middleware/admin.middleware.js";
 
 const router = Router();
 
+router.get("/cities/active", getAllActiveCities);
+
 router.use(verifyJWT, verifyAdmin);
 
 // dashboard
@@ -65,7 +67,6 @@ router.delete("/users/:id", validateObjectId, deleteUser);
 
 router.post("/cities", createCity);
 router.get("/cities", getAllCities);
-router.get("/cities/active", getAllActiveCities);
 router.get("/cities/:cityId", validateObjectId, getCityById);
 router.patch("/cities/:cityId/toggle-status", validateObjectId, toggleCityStatus);
 router.delete("/cities/:cityId", validateObjectId, deleteCity);
