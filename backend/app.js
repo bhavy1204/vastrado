@@ -19,7 +19,7 @@ import reviewRouter from "./src/routes/review.route.js"
 import sellerRouter from "./src/routes/seller.route.js"
 import siteContentRouter from "./src/routes/siteContent.route.js"
 import cityAdminRouter from "./src/routes/cityAdmin.route.js"
-import staffRouter from "./src/routes/staff.routes.js";
+import staffRouter from "./src/routes/staff.route.js";
 
 // attach city middleware
 import { attachSelectedCity } from "./src/middleware/selectedCity.middleware.js";

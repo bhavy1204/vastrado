@@ -1,5 +1,7 @@
-import { NavLink } from "react-router-dom";
-import { SquaresFour, Storefront, Users } from "@phosphor-icons/react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { SquaresFour, Storefront, Users, SignOut } from "@phosphor-icons/react";
+import toast from "react-hot-toast";
+import { staffLogout } from "@/lib/staffAuth";
 
 const NAV_ITEMS = [
   {
@@ -13,6 +15,13 @@ const NAV_ITEMS = [
 ];
 
 export default function CityAdminSidebar() {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await staffLogout(navigate);
+    toast.success("Logged out");
+  };
+
   return (
     <aside className="w-full sm:w-64 shrink-0 border-r border-border bg-bg sm:h-[calc(100vh-4rem)] sm:sticky sm:top-16">
       <div className="hidden sm:flex flex-col h-full p-5">
@@ -55,6 +64,14 @@ export default function CityAdminSidebar() {
           <p className="mt-1 text-xs text-text-muted">
             Manage sellers and staff in your city.
           </p>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-error transition-colors hover:bg-surface"
+          >
+            <SignOut size={18} />
+            Log out
+          </button>
         </div>
       </div>
 

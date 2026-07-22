@@ -88,7 +88,9 @@ axiosInstance.interceptors.response.use(
     const refreshEndpoint =
       actorType === "seller"
         ? "/v1/seller/refresh-token"
-        : "/v1/user/refresh-token";
+        : actorType === "staff"
+          ? "/v1/staff/refresh-token"
+          : "/v1/user/refresh-token";
 
     try {
       await refreshAxios.post(refreshEndpoint);
@@ -106,7 +108,11 @@ axiosInstance.interceptors.response.use(
 
 
       const loginPath =
-        actorType === "seller" ? "/seller/login" : "/login";
+        actorType === "seller"
+          ? "/seller/login"
+          : actorType === "staff"
+            ? "/staff/login"
+            : "/login";
       window.location.href = loginPath;
 
       return Promise.reject(refreshError);

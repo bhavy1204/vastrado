@@ -14,10 +14,11 @@ import {
     validateObjectId,
     validatePaginationQuery,
 } from "../middleware/validators/admin.validator.js";
+import { verifyStaffJWT } from "../middleware/staff.middleware.js";
 
 const router = Router();
 
-router.use(verifyJWT, verifyCityAdmin);
+router.use(verifyStaffJWT, verifyCityAdmin);
 
 //sellers
 

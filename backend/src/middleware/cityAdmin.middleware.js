@@ -3,7 +3,8 @@ import { APIError } from "../utils/apiError.js";
 import { Staff } from "../models/staff.model.js";
 
 export const verifyCityAdmin = asyncHandler(async (req, res, next) => {
-    const id = req.user?._id;
+    console.log("VErifying from city admin >> ", req.staff)
+    const id = req.staff?._id;
 
     const staff = await Staff.findById(id).select("role status cityId");
 
@@ -18,6 +19,8 @@ export const verifyCityAdmin = asyncHandler(async (req, res, next) => {
     if (staff.status !== "approved") {
         throw new APIError(403, "Your account is not active");
     }
+
+    console.log("ALL SET HERE AS WELL ")
 
     req.staff = staff;
 

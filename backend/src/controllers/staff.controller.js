@@ -4,6 +4,13 @@ import { APIResponse } from "../utils/apiResponse.js";
 import { Staff } from "../models/staff.model.js";
 import { City } from "../models/city.model.js";
 
+
+const COOKIE_OPTIONS = {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+};
+
 const generateTokens = async (staff) => {
     const accessToken = staff.generateAccessToken();
     const refreshToken = staff.generateRefreshToken();

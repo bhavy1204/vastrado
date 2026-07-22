@@ -47,6 +47,9 @@ import AdminFAQsPage from "@/pages/admin/AdminFAQsPage.jsx";
 import CityManagement from "@/pages/admin/CityManagement.jsx";
 import StaffManagement from "@/pages/admin/StaffManagement.jsx";
 
+// Staff pages
+import StaffLoginPage from "@/pages/staff/StaffLoginPage.jsx";
+
 // City Admin pages
 import CityAdminLayout from "@/components/layout/CityAdminLayout.jsx";
 import CityAdminDashboardPage from "@/pages/cityAdmin/CityAdminDashboardPage.jsx";
@@ -63,6 +66,7 @@ export default function App() {
   const isLoading = useAuthStore((s) => s.isLoading);
 
   useEffect(() => {
+    console.log("check auth checking")
     checkAuth();
   }, []);
 
@@ -111,6 +115,10 @@ export default function App() {
         />
       </Route>
 
+      <Route element={<PublicOnlyRoute actorType="staff" />}>
+        <Route path="/staff/login" element={<StaffLoginPage />} />
+      </Route>
+
       {/* ── Protected — seller (Navbar + SellerSidebar) ────────────────── */}
       <Route element={<ProtectedRoute allowedActors={["seller"]} />}>
         <Route element={<SellerLayout />}>
@@ -138,7 +146,14 @@ export default function App() {
       </Route>
 
       {/* ── Protected — city admin (Navbar + CityAdminSidebar) ─────────── */}
-      <Route element={<ProtectedRoute allowedActors={["staff"]} />}>
+      <Route
+        element={
+          <ProtectedRoute
+            requiredStaffRole="city-admin"
+            redirectTo="/staff/login"
+          />
+        }
+      >
         <Route element={<CityAdminLayout />}>
           <Route
             path="/city-admin/dashboard"

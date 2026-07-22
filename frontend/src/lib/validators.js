@@ -252,6 +252,11 @@ export const createCitySchema = z.object({
 // Staff
 // =========================
 
+export const staffLoginSchema = z.object({
+    email: emailSchema,
+    password: z.string().min(1, "Password is required"),
+});
+
 export const createStaffSchema = z.object({
     fullName: z
         .string()
