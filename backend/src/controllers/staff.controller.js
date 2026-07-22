@@ -4,6 +4,14 @@ import { APIResponse } from "../utils/apiResponse.js";
 import { Staff } from "../models/staff.model.js";
 import { City } from "../models/city.model.js";
 
+const generateTokens = async (staff) => {
+    const accessToken = staff.generateAccessToken();
+    const refreshToken = staff.generateRefreshToken();
+    staff.refreshToken = refreshToken;
+    await staff.save({ validateBeforeSave: false });
+    return { accessToken, refreshToken };
+};
+
 const createStaff = asyncHandler(async (req, res) => {
     const {
         fullName,
@@ -77,6 +85,102 @@ const createStaff = asyncHandler(async (req, res) => {
 
     return res.status(201).json(
         new APIResponse(201, createdStaff, "Staff created successfully")
+    );
+});
+
+const loginStaff = asyncHandler(async (req, res) => {
+    const { email, password } = req.body;
+
+    const staff = await Staff.findOne({ email });
+
+    if (!staff) {
+        throw new APIError(401, "Invalid email or password");
+    }
+
+    const isPasswordValid = await staff.isPasswordCorrect(password);
+
+    if (!isPasswordValid) {
+        throw new APIError(401, "Invalid email or password");
+    }
+
+    const { accessToken, refreshToken } = await generateTokens(staff);
+
+    return res
+        .status(200)
+        .cookie("accessToken", accessToken, COOKIE_OPTIONS)
+        .cookie("refreshToken", refreshToken, COOKIE_OPTIONS)
+        .json(
+            new APIResponse(
+                200,
+                {
+                    _id: staff._id,
+                    fullName: staff.fullName,
+                    email: staff.email,
+                    role: staff.role,
+                    cityId: staff.cityId,
+                    avatar: staff.avatar,
+                    status: staff.status,
+                },
+                "Logged in successfully"
+            )
+        );
+});
+
+const logoutStaff = asyncHandler(async (req, res) => {
+    await Staff.findByIdAndUpdate(
+        req.staff._id,
+        { $unset: { refreshToken: 1 } },
+        { new: true }
+    );
+
+    return res
+        .status(200)
+        .clearCookie("accessToken", COOKIE_OPTIONS)
+        .clearCookie("refreshToken", COOKIE_OPTIONS)
+        .json(new APIResponse(200, null, "Logged out successfully"));
+});
+
+const refreshStaffAccessToken = asyncHandler(async (req, res) => {
+    const incomingRefreshToken =
+        req.cookies?.refreshToken || req.body?.refreshToken;
+
+    if (!incomingRefreshToken) {
+        throw new APIError(401, "Refresh token is required");
+    }
+
+    let decoded;
+    try {
+        decoded = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
+    } catch {
+        throw new APIError(401, "Invalid or expired refresh token");
+    }
+
+    if (decoded.type !== "staff") {
+        throw new APIError(401, "Invalid token type");
+    }
+
+    const staff = await Staff.findById(decoded._id);
+
+    if (!staff || staff.refreshToken !== incomingRefreshToken) {
+        throw new APIError(401, "Refresh token is invalid or has been revoked");
+    }
+
+    const { accessToken, refreshToken } = await generateTokens(staff);
+
+    return res
+        .status(200)
+        .cookie("accessToken", accessToken, COOKIE_OPTIONS)
+        .cookie("refreshToken", refreshToken, COOKIE_OPTIONS)
+        .json(new APIResponse(200, null, "Access token refreshed successfully"));
+});
+
+const getStaffProfile = asyncHandler(async (req, res) => {
+    return res.status(200).json(
+        new APIResponse(
+            200,
+            req.staff,
+            "Staff profile fetched successfully"
+        )
     );
 });
 
@@ -185,6 +289,10 @@ const deleteStaff = asyncHandler(async (req, res) => {
 
 export {
     createStaff,
+    loginStaff,
+    logoutStaff,
+    refreshStaffAccessToken,
+    getStaffProfile,
     getAllStaff,
     getStaffByID,
     getCityAdmin,

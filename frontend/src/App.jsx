@@ -47,6 +47,12 @@ import AdminFAQsPage from "@/pages/admin/AdminFAQsPage.jsx";
 import CityManagement from "@/pages/admin/CityManagement.jsx";
 import StaffManagement from "@/pages/admin/StaffManagement.jsx";
 
+// City Admin pages
+import CityAdminLayout from "@/components/layout/CityAdminLayout.jsx";
+import CityAdminDashboardPage from "@/pages/cityAdmin/CityAdminDashboardPage.jsx";
+import CityAdminSellersPage from "@/pages/cityAdmin/CityAdminSellersPage.jsx";
+import CityAdminStaffPage from "@/pages/cityAdmin/CityAdminStaffPage.jsx";
+
 // Temporary placeholder so App.jsx is functional before pages are built
 const Placeholder = ({ name }) => (
   <div className="p-8 text-lg font-medium">{name}</div>
@@ -127,7 +133,19 @@ export default function App() {
           <Route path="/admin/banners" element={<AdminBannersPage />} />
           <Route path="/admin/faqs" element={<AdminFAQsPage />} />
           <Route path="/admin/cities" element={<CityManagement />} />
-          <Route path="/admin/staff" element={<StaffManagement />} />;
+          <Route path="/admin/staff" element={<StaffManagement />} />
+        </Route>
+      </Route>
+
+      {/* ── Protected — city admin (Navbar + CityAdminSidebar) ─────────── */}
+      <Route element={<ProtectedRoute allowedActors={["staff"]} />}>
+        <Route element={<CityAdminLayout />}>
+          <Route
+            path="/city-admin/dashboard"
+            element={<CityAdminDashboardPage />}
+          />
+          <Route path="/city-admin/sellers" element={<CityAdminSellersPage />} />
+          <Route path="/city-admin/staff" element={<CityAdminStaffPage />} />
         </Route>
       </Route>
 

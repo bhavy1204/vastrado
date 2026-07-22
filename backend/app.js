@@ -19,6 +19,7 @@ import reviewRouter from "./src/routes/review.route.js"
 import sellerRouter from "./src/routes/seller.route.js"
 import siteContentRouter from "./src/routes/siteContent.route.js"
 import cityAdminRouter from "./src/routes/cityAdmin.route.js"
+import staffRouter from "./src/routes/staff.routes.js";
 
 // attach city middleware
 import { attachSelectedCity } from "./src/middleware/selectedCity.middleware.js";
@@ -69,6 +70,7 @@ app.use("/api/v1/payment", paymentRouter);
 app.use("/api/v1/product", attachSelectedCity, productRouter);
 app.use("/api/v1/review", reviewRouter);
 app.use("/api/v1/siteContent", siteContentRouter);
+app.use("/api/v1/staff", staffRouter);
 
 app.use(errorMiddleware);
 

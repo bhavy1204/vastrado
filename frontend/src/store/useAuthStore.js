@@ -1,10 +1,11 @@
 import { create } from "zustand";
-import { userService, sellerService } from "../api/index.js";
+import { userService, sellerService, staffService } from "../api/index.js";
 
 const initialState = {
     actorType: null,
     user: null,
     seller: null,
+    staff: null,
     isLoading: true,
 };
 
@@ -16,8 +17,8 @@ const useAuthStore = create((set, get) => ({
 
     // Usage: const isAuthenticated = useAuthStore(s => s.isAuthenticated())
     isAuthenticated: () => {
-        const { user, seller } = get();
-        return !!(user || seller);
+        const { user, seller, staff } = get();
+        return !!(user || seller || staff);
     },
 
     isAdmin: () => {
@@ -31,6 +32,7 @@ const useAuthStore = create((set, get) => ({
             actorType: "user",
             user: userData,
             seller: null,
+            staff: null,
             isLoading: false,
         });
 
@@ -44,9 +46,25 @@ const useAuthStore = create((set, get) => ({
             actorType: "seller",
             seller: sellerData,
             user: null,
+            staff: null,
             isLoading: false,
         });
+
         localStorage.setItem("actorType", "seller");
+        localStorage.removeItem("userRole");
+    },
+
+    // after staff login
+    setStaff: (staffData) => {
+        set({
+            actorType: "staff",
+            staff: staffData,
+            user: null,
+            seller: null,
+            isLoading: false,
+        });
+
+        localStorage.setItem("actorType", "staff");
         localStorage.removeItem("userRole");
     },
 
@@ -89,6 +107,19 @@ const useAuthStore = create((set, get) => ({
                     actorType: "seller",
                     seller: res.data.data,
                     user: null,
+                    staff: null,
+                    isLoading: false,
+                });
+
+            } else if (actorType === "staff") {
+
+                const res = await staffService.getProfile();
+
+                set({
+                    actorType: "staff",
+                    staff: res.data.data,
+                    user: null,
+                    seller: null,
                     isLoading: false,
                 });
 
@@ -100,6 +131,7 @@ const useAuthStore = create((set, get) => ({
                     actorType: "user",
                     user: res.data.data,
                     seller: null,
+                    staff: null,
                     isLoading: false,
                 });
 
@@ -125,6 +157,10 @@ const useAuthStore = create((set, get) => ({
             seller: state.seller ? { ...state.seller, ...fields } : state.seller,
         })),
 
+    updateStaffState: (fields) =>
+        set((state) => ({
+            staff: state.staff ? { ...state.staff, ...fields } : state.staff,
+        })),
 }));
 
 export default useAuthStore;

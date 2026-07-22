@@ -17,7 +17,12 @@ export default function ProtectedRoute({
 
   // Logged in but wrong actor typ
   if (!allowedActors.includes(actorType)) {
-    const fallback = actorType === "seller" ? "/seller/dashboard" : "/";
+    const fallback =
+      actorType === "seller"
+        ? "/seller/dashboard"
+        : actorType === "staff"
+          ? "/city-admin/dashboard"
+          : "/";
     return <Navigate to={fallback} replace />;
   }
 

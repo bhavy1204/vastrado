@@ -33,7 +33,7 @@ export const verifyStaffJWT = asyncHandler(async (req, res, next) => {
         throw new APIError(401, "Staff not found or token is invalid");
     }
 
-    req.user = staff;
+    req.staff = staff;
     req.userType = "staff";
 
     next();
