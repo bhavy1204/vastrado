@@ -107,7 +107,7 @@ export default function ShopHeader({
           <div className="flex items-center gap-1 text-sm text-text-muted">
             <MapPin size={16} />
             <span className="capitalize">
-              {seller.cityId.name}, {seller.cityId.state}
+              {seller.cityId?.name}, {seller.cityId?.state}
             </span>
           </div>
 

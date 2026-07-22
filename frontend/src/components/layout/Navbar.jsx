@@ -15,6 +15,7 @@ import { sellerService } from "@/api/index";
 import toast from "react-hot-toast";
 import Input from "../common/Input.jsx";
 import CitySelector from "../common/CitySelector.jsx";
+import logo from "../../../assets/logo.png";
 
 /**
  * Navbar
@@ -64,17 +65,19 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-40 bg-surface-raised border-b border-border ">
       <div className="max-w-7xl mx-auto flex items-center gap-4 h-16 px-4 sm:px-6">
-        <Link
-          to="/"
-          className="text-lg font-bold text-primary shrink-0 tracking-tight"
-        >
-          ClothMarket
+        <Link to="/" className="flex items-center gap-2 shrink-0">
+          <img
+            src={logo}
+            alt="ClothMarket"
+            className="h-12 w-12 rounded-full object-cover scale-110 ring-2 ring-primary/20 shadow-md transition-all duration-200 hover:scale-115 hover:ring-primary/40"
+          />
+
+          <span className="text-lg font-bold text-primary tracking-tight">
+            ClothMarket
+          </span>
         </Link>
 
-        <form
-          onSubmit={handleSearchSubmit}
-          className="w-full"
-        >
+        <form onSubmit={handleSearchSubmit} className="w-full">
           <Input
             type="search"
             leftIcon={<MagnifyingGlass size={18} />}
@@ -96,109 +99,112 @@ export default function Navbar() {
           <CitySelector className="w-36 sm:w-44" />
 
           <div className="relative" ref={menuRef}>
-          <button
-            type="button"
-            onClick={() => setIsMenuOpen((prev) => !prev)}
-            className="flex items-center gap-1 p-1.5 rounded-full hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-            aria-haspopup="menu"
-            aria-expanded={isMenuOpen}
-          >
-            <UserCircle
-              size={26}
-              className="text-text-secondary"
-              weight={actorType ? "fill" : "regular"}
-            />
-            <CaretDown size={12} className="text-text-muted hidden sm:block" />
-          </button>
-
-          {isMenuOpen && (
-            <div
-              role="menu"
-              className="absolute right-0 mt-2 w-52 rounded-md bg-surface-raised border border-border shadow-lg py-1"
+            <button
+              type="button"
+              onClick={() => setIsMenuOpen((prev) => !prev)}
+              className="flex items-center gap-1 p-1.5 rounded-full hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              aria-haspopup="menu"
+              aria-expanded={isMenuOpen}
             >
-              {!actorType && (
-                <Link
-                  to="/login"
-                  role="menuitem"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="block px-4 py-2 text-sm text-text hover:bg-surface"
-                >
-                  Log in
-                </Link>
-              )}
+              <UserCircle
+                size={26}
+                className="text-text-secondary"
+                weight={actorType ? "fill" : "regular"}
+              />
+              <CaretDown
+                size={12}
+                className="text-text-muted hidden sm:block"
+              />
+            </button>
 
-              {actorType === "user" && !isAdmin() && (
-                <>
-                  <MenuLink
-                    to="/profile"
-                    icon={<UserCircle size={16} />}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Profile
-                  </MenuLink>
-                  <MenuLink
-                    to="/wishlist"
-                    icon={<Heart size={16} />}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Wishlist
-                  </MenuLink>
-                  <button
-                    onClick={handleLogout}
+            {isMenuOpen && (
+              <div
+                role="menu"
+                className="absolute right-0 mt-2 w-52 rounded-md bg-surface-raised border border-border shadow-lg py-1"
+              >
+                {!actorType && (
+                  <Link
+                    to="/login"
                     role="menuitem"
-                    className="flex items-center gap-2 w-full px-4 py-2 text-sm text-error hover:bg-surface"
-                  >
-                    <SignOut size={16} /> Log out
-                  </button>
-                </>
-              )}
-
-              {actorType === "seller" && (
-                <>
-                  <MenuLink
-                    to="/seller/profile"
-                    icon={<Storefront size={16} />}
                     onClick={() => setIsMenuOpen(false)}
+                    className="block px-4 py-2 text-sm text-text hover:bg-surface"
                   >
-                    My shop
-                  </MenuLink>
-                  {/* <MenuLink
+                    Log in
+                  </Link>
+                )}
+
+                {actorType === "user" && !isAdmin() && (
+                  <>
+                    <MenuLink
+                      to="/profile"
+                      icon={<UserCircle size={16} />}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Profile
+                    </MenuLink>
+                    <MenuLink
+                      to="/wishlist"
+                      icon={<Heart size={16} />}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Wishlist
+                    </MenuLink>
+                    <button
+                      onClick={handleLogout}
+                      role="menuitem"
+                      className="flex items-center gap-2 w-full px-4 py-2 text-sm text-error hover:bg-surface"
+                    >
+                      <SignOut size={16} /> Log out
+                    </button>
+                  </>
+                )}
+
+                {actorType === "seller" && (
+                  <>
+                    <MenuLink
+                      to="/seller/profile"
+                      icon={<Storefront size={16} />}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      My shop
+                    </MenuLink>
+                    {/* <MenuLink
                     to="/seller/dashboard"
                     icon={<SquaresFour size={16} />}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Dashboard
                   </MenuLink> */}
-                  <button
-                    onClick={handleLogout}
-                    role="menuitem"
-                    className="flex items-center gap-2 w-full px-4 py-2 text-sm text-error hover:bg-surface"
-                  >
-                    <SignOut size={16} /> Log out
-                  </button>
-                </>
-              )}
+                    <button
+                      onClick={handleLogout}
+                      role="menuitem"
+                      className="flex items-center gap-2 w-full px-4 py-2 text-sm text-error hover:bg-surface"
+                    >
+                      <SignOut size={16} /> Log out
+                    </button>
+                  </>
+                )}
 
-              {actorType === "user" && isAdmin() && (
-                <>
-                  <MenuLink
-                    to="/admin/dashboard"
-                    icon={<SquaresFour size={16} />}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Admin dashboard
-                  </MenuLink>
-                  <button
-                    onClick={handleLogout}
-                    role="menuitem"
-                    className="flex items-center gap-2 w-full px-4 py-2 text-sm text-error hover:bg-surface"
-                  >
-                    <SignOut size={16} /> Log out
-                  </button>
-                </>
-              )}
-            </div>
-          )}
+                {actorType === "user" && isAdmin() && (
+                  <>
+                    <MenuLink
+                      to="/admin/dashboard"
+                      icon={<SquaresFour size={16} />}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Admin dashboard
+                    </MenuLink>
+                    <button
+                      onClick={handleLogout}
+                      role="menuitem"
+                      className="flex items-center gap-2 w-full px-4 py-2 text-sm text-error hover:bg-surface"
+                    >
+                      <SignOut size={16} /> Log out
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -20,9 +20,9 @@ export const verifyCityAdmin = asyncHandler(async (req, res, next) => {
         throw new APIError(403, "Your account is not active");
     }
 
-    console.log("ALL SET HERE AS WELL ")
-
     req.staff = staff;
+
+    console.log("Reacehed at end of cityAdmin middleware")
 
     next();
 });

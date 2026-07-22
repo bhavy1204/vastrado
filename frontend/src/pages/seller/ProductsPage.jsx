@@ -26,6 +26,17 @@ import Loader from "@/components/common/Loader";
 import EmptyState from "@/components/common/EmptyState";
 import Pagination from "@/components/common/Pagination";
 
+import { DndContext, closestCenter } from "@dnd-kit/core";
+
+import {
+  SortableContext,
+  useSortable,
+  rectSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
+
+import { CSS } from "@dnd-kit/utilities";
+
 export default function SellerProductsPage() {
   const {
     page,
@@ -231,6 +242,8 @@ function ProductFormModal({ isOpen, onClose, product, onSaved }) {
   const isEditing = !!product;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageFiles, setImageFiles] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
+  const [images, setImages] = useState([]);
 
   const defaultFormValues = {
     productName: "",
@@ -260,18 +273,86 @@ function ProductFormModal({ isOpen, onClose, product, onSaved }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product, reset]);
 
+  useEffect(() => {
+    return () => {
+      images.forEach((img) => URL.revokeObjectURL(img.preview));
+    };
+  }, [images]);
+
   const handleImageChange = (e) => {
-    const files = Array.from(e.target.files || []);
-    for (const file of files) {
-      const errorMessage = validateImageFile(file, 5);
-      if (errorMessage) {
-        toast.error(errorMessage);
-        e.target.value = "";
-        return;
-      }
-    }
-    setImageFiles(files);
+    const files = Array.from(e.target.files);
+
+    const newImages = files.map((file) => ({
+      id: crypto.randomUUID(),
+      file,
+      preview: URL.createObjectURL(file),
+    }));
+
+    setImages((prev) => [...prev, ...newImages]);
+
+    e.target.value = "";
   };
+
+  const removeImage = (id) => {
+    setImages((prev) => {
+      const image = prev.find((img) => img.id === id);
+
+      if (image) {
+        URL.revokeObjectURL(image.preview);
+      }
+
+      return prev.filter((img) => img.id !== id);
+    });
+  };
+
+  const handleDragEnd = ({ active, over }) => {
+    if (!over || active.id === over.id) return;
+
+    setImages((items) => {
+      const oldIndex = items.findIndex((i) => i.id === active.id);
+      const newIndex = items.findIndex((i) => i.id === over.id);
+
+      return arrayMove(items, oldIndex, newIndex);
+    });
+  };
+
+  function SortableImage({ image, onRemove }) {
+    const { attributes, listeners, setNodeRef, transform, transition } =
+      useSortable({ id: image.id });
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+    };
+
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        className="relative group aspect-square overflow-hidden rounded-lg border border-border"
+      >
+        <img
+          src={image.preview}
+          alt=""
+          className="w-full h-full object-cover"
+        />
+
+        <button
+          type="button"
+          onClick={() => onRemove(image.id)}
+          className="absolute top-2 right-2 h-7 w-7 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition"
+        >
+          ×
+        </button>
+
+        <div
+          {...attributes}
+          {...listeners}
+          className="absolute inset-0 cursor-grab active:cursor-grabbing"
+        />
+      </div>
+    );
+  }
 
   const onSubmit = async (data) => {
     // New products need images; edits (via update, which takes JSON per
@@ -288,8 +369,9 @@ function ProductFormModal({ isOpen, onClose, product, onSaved }) {
         toast.success("Product updated");
       } else {
         const formData = new FormData();
+
         Object.entries(data).forEach(([key, value]) => {
-          if (value === undefined) return;
+          if (value === undefined || value === null) return;
 
           if (key === "variants") {
             formData.append(key, JSON.stringify(value));
@@ -297,10 +379,15 @@ function ProductFormModal({ isOpen, onClose, product, onSaved }) {
             formData.append(key, value);
           }
         });
-        imageFiles.forEach((file) => formData.append("images", file));
+
+        images.forEach((image) => {
+          formData.append("images", image.file);
+        });
+
         await productService.create(formData);
         toast.success("Product added");
       }
+
       onSaved();
     } catch (err) {
       console.log(err);
@@ -401,27 +488,47 @@ function ProductFormModal({ isOpen, onClose, product, onSaved }) {
           )}
         </div>
 
-        {!isEditing && (
-          <label className="flex flex-col gap-1.5 cursor-pointer">
-            <span className="text-sm font-medium text-text">
-              Product images
+        <label className="flex flex-col gap-1.5 cursor-pointer">
+          <span className="text-sm font-medium text-text">Product images</span>
+
+          <div className="h-11 rounded-md border border-dashed border-border-strong bg-surface flex items-center gap-2 px-3 text-text-muted hover:border-primary hover:text-primary transition-colors">
+            <ImageIcon size={16} />
+            <span className="text-xs truncate">
+              {images.length > 0
+                ? `${images.length} image(s) selected`
+                : "Choose images"}
             </span>
-            <div className="h-11 rounded-md border border-dashed border-border-strong bg-surface flex items-center gap-2 px-3 text-text-muted hover:border-primary hover:text-primary transition-colors">
-              <ImageIcon size={16} />
-              <span className="text-xs truncate">
-                {imageFiles.length > 0
-                  ? `${imageFiles.length} image(s) selected`
-                  : "Choose images"}
-              </span>
-            </div>
-            <input
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              multiple
-              className="hidden"
-              onChange={handleImageChange}
-            />
-          </label>
+          </div>
+
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            multiple
+            className="hidden"
+            onChange={handleImageChange}
+          />
+        </label>
+
+        {images.length > 0 && (
+          <DndContext
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={images.map((img) => img.id)}
+              strategy={rectSortingStrategy}
+            >
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mt-3">
+                {images.map((image) => (
+                  <SortableImage
+                    key={image.id}
+                    image={image}
+                    onRemove={removeImage}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
         )}
 
         <div className="flex justify-end gap-2 pt-1">

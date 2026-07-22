@@ -6,5 +6,7 @@ export const handleValidationErrors = (req, res, next) => {
     if (!errors.isEmpty()) {
         return next(new APIError(400, "Validation failed", errors.array()))
     }
+
+    console.log("AT end of validation")
     next()
 }

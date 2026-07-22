@@ -5,6 +5,7 @@ import { Staff } from "../models/staff.model.js";
 import { Seller } from "../models/seller.model.js";
 
 const approveCitySeller = asyncHandler(async (req, res) => {
+    console.log("city admin reached herer");
     const { sellerId } = req.params;
 
     const staff = req.staff;
@@ -17,6 +18,8 @@ const approveCitySeller = asyncHandler(async (req, res) => {
         throw new APIError(403, "Only city admin can perform this action");
     }
 
+    console.log("city admin reached herer 2");
+
     const seller = await Seller.findById(sellerId);
 
     if (!seller) {
@@ -27,9 +30,13 @@ const approveCitySeller = asyncHandler(async (req, res) => {
         throw new APIError(403, "You can only manage sellers of your city");
     }
 
+    console.log("city admin reached herer 3 ");
+
     seller.status = "approved";
     await seller.save();
 
+    console.log("city admin reached herer 4 ");
+    
     return res.status(200).json(
         new APIResponse(200, seller, "Seller approved successfully")
     );

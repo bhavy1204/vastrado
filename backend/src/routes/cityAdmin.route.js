@@ -24,7 +24,7 @@ router.use(verifyStaffJWT, verifyCityAdmin);
 
 router.get("/sellers", validatePaginationQuery, getCitySellers);
 router.get("/seller/search", getCitySellerByEmail);
-router.patch("/sellers/:sellerId/approve", validateObjectId, approveCitySeller);
+router.patch("/sellers/:sellerId/approve", approveCitySeller);
 router.patch("/sellers/:sellerId/suspend", validateObjectId, suspendCitySeller);
 
 //staff

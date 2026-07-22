@@ -408,20 +408,31 @@ const getSellerDashboard = asyncHandler(async (req, res) => {
     const [totalProducts, activeProducts, seller] = await Promise.all([
         Product.countDocuments({ sellerId }),
         Product.countDocuments({ sellerId, isActive: true }),
-        Seller.findById(sellerId).select("subscription shopName").lean(),
+        Seller.findById(sellerId)
+            .select("-password -refreshToken -authId")
+            .populate("cityId", "name state")
+            .lean(),
     ]);
 
+    if (!seller) {
+        throw new APIError(404, "Seller not found");
+    }
+
     return res.status(200).json(
-        new APIResponse(200, {
-            shopName: seller.shopName,
-            totalProducts,
-            activeProducts,
-            subscription: {
-                status: seller.subscription.status,
-                nextBillingDate: seller.subscription.nextBillingDate,
-                endDate: seller.subscription.endDate,
-            }
-        }, "Dashboard fetched successfully")
+        new APIResponse(
+            200,
+            {
+                seller,
+                totalProducts,
+                activeProducts,
+                subscription: {
+                    status: seller.subscription?.status,
+                    nextBillingDate: seller.subscription?.nextBillingDate,
+                    endDate: seller.subscription?.endDate,
+                },
+            },
+            "Dashboard fetched successfully"
+        )
     );
 });
 

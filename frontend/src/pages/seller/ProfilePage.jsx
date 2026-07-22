@@ -38,11 +38,10 @@ export default function SellerProfilePage() {
 
   const fetchProducts = useCallback(() => {
     setIsLoadingProducts(true);
-    productService
-      .getMyProducts(params)
+    sellerService
+      .getDashboard()
       .then((res) => {
-        setProducts(res.data.data.products);
-        setTotalPages(res.data.data.pagination.totalPages);
+        updateSellerState(res.data.data.seller);
       })
       .catch(() => {})
       .finally(() => setIsLoadingProducts(false));
