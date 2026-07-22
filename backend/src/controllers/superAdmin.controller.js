@@ -1,22 +1,24 @@
-import {asyncHandler } from "../utils/asyncHandler.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import { APIResponse } from "../utils/apiResponse.js";
 import { APIError } from "../utils/apiError.js";
 import { User } from "../models/user.model.js";
 import { Seller } from "../models/seller.model.js";
-import {Product} from "../models/product.model.js"
+import { Product } from "../models/product.model.js"
 
 const getAllSellers = asyncHandler(async (req, res) => {
+    const cityId = req.cityId;
+
     const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 10));
     const skip = (page - 1) * limit;
 
     const [sellers, total] = await Promise.all([
-        Seller.find()
+        Seller.find({cityId})
             .select("-password -refreshToken -authId")
             .skip(skip)
             .limit(limit)
             .lean(),
-        Seller.countDocuments()
+        Seller.countDocuments({cityId})
     ]);
 
     return res.status(200).json(
@@ -177,7 +179,7 @@ const getDashboardStats = asyncHandler(async (req, res) => {
     ] = await Promise.all([
         User.countDocuments(),
         Seller.countDocuments(),
-        Seller.countDocuments({ "status":"pending" }),
+        Seller.countDocuments({ "status": "pending" }),
         Seller.countDocuments({ "subscription.status": "pending" }),
         Product.countDocuments()
     ]);

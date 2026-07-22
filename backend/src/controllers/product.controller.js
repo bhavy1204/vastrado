@@ -20,8 +20,12 @@ const processAndUploadProductImage = async (buffer, sellerId, index) => {
     return url;
 };
 
-const buildProductFilters = (query) => {
+const buildProductFilters = (query, cityId) => {
     const filters = { isActive: true };
+
+    if (cityId) {
+        filters.cityId = cityId;
+    }
 
     if (query.productType) filters.productType = query.productType;
     if (query.gender) filters.gender = query.gender;
@@ -210,10 +214,13 @@ const getProductById = asyncHandler(async (req, res) => {
 // ─── GET PRODUCT BY SLUG (public, SEO) ───────────────────────────────────────
 
 const getProductBySlug = asyncHandler(async (req, res) => {
+    const cityId = req.cityId;
+
     const { slug } = req.params;
 
-    const product = await Product.findOne({ slug, isActive: true })
-        .populate("sellerId", "shopName slug city whatsappNumber avatar")
+    const product = await Product.findOne({ slug, isActive: true,cityId })
+        .populate("sellerId", "shopName slug cityId whatsappNumber avatar")
+        .populate("cityId","name")
         .lean();
 
     if (!product) throw new APIError(404, "Product not found");
@@ -281,18 +288,19 @@ const getMyProducts = asyncHandler(async (req, res) => {
 // ─── GET ALL PRODUCTS (public listing with filters) ───────────────────────────
 
 const getAllProducts = asyncHandler(async (req, res) => {
-    const { cityId } = req.query;
+    const cityId= req.cityId;
     const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 12));
     const skip = (page - 1) * limit;
 
-    const filters = buildProductFilters(req.query);
+    const filters = buildProductFilters(req.query,cityId);
     const sort = buildSortOption(req.query.sort);
 
     const [products, total] = await Promise.all([
         Product.find(filters)
             .select("productName slug price discountedPrice images averageRating numReviews productType gender color brand sellerId")
-            .populate("sellerId", "shopName city")
+            .populate("sellerId", "shopName cityId")
+            .populate("cityId","name")
             .sort(sort)
             .skip(skip)
             .limit(limit)
@@ -311,6 +319,8 @@ const getAllProducts = asyncHandler(async (req, res) => {
 // ─── GET PRODUCTS BY CATEGORY ─────────────────────────────────────────────────
 
 const getProductsByCategory = asyncHandler(async (req, res) => {
+    const cityId = req.cityId;
+
     const { productType } = req.params;
     const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 12));
@@ -325,7 +335,7 @@ const getProductsByCategory = asyncHandler(async (req, res) => {
         throw new APIError(400, "Invalid product category");
     }
 
-    const filters = { isActive: true, productType };
+    const filters = { isActive: true,  cityId, productType, };
     const sort = buildSortOption(req.query.sort);
 
     const [products, total] = await Promise.all([
@@ -382,6 +392,7 @@ const getProductsByGender = asyncHandler(async (req, res) => {
 // ─── SEARCH PRODUCTS ──────────────────────────────────────────────────────────
 
 const searchProducts = asyncHandler(async (req, res) => {
+    const cityId = req.cityId;
     const { q } = req.query;
 
     if (!q || q.trim().length < 2) {
@@ -404,6 +415,7 @@ const searchProducts = asyncHandler(async (req, res) => {
 
     const searchFilter = {
         isActive: true,
+        cityId,
         $or: [
             { productName: searchRegex },
             { brand: searchRegex },
@@ -414,7 +426,8 @@ const searchProducts = asyncHandler(async (req, res) => {
     const [products, total] = await Promise.all([
         Product.find(searchFilter)
             .select("productName slug price discountedPrice images averageRating numReviews productType gender brand sellerId")
-            .populate("sellerId", "shopName city")
+            .populate("sellerId", "shopName cityId")
+            .populate("cityId","name")
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit)
