@@ -56,6 +56,8 @@ import CityAdminDashboardPage from "@/pages/cityAdmin/CityAdminDashboardPage.jsx
 import CityAdminSellersPage from "@/pages/cityAdmin/CityAdminSellersPage.jsx";
 import CityAdminStaffPage from "@/pages/cityAdmin/CityAdminStaffPage.jsx";
 
+import OfflineBanner from "./components/common/OfflineBanner.jsx";
+
 // Temporary placeholder so App.jsx is functional before pages are built
 const Placeholder = ({ name }) => (
   <div className="p-8 text-lg font-medium">{name}</div>
@@ -66,7 +68,7 @@ export default function App() {
   const isLoading = useAuthStore((s) => s.isLoading);
 
   useEffect(() => {
-    console.log("check auth checking")
+    console.log("check auth checking");
     checkAuth();
   }, []);
 
@@ -79,93 +81,101 @@ export default function App() {
   }
 
   return (
-    <Routes>
-      {/* ── Public + user routes (Navbar + Footer) ─────────────────────── */}
-      <Route element={<MainLayout />}>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/products" element={<ProductListPage />} />
-        <Route path="/products/:slug" element={<ProductDetailPage />} />
-        <Route path="/search" element={<SearchResultsPage />} />
-        <Route path="/shop/:slug" element={<ShopPage />} />
-        <Route path="/nearby" element={<NearbyPage />} />
+    <>
+     <OfflineBanner />
+      <Routes>
+        {/* ── Public + user routes (Navbar + Footer) ─────────────────────── */}
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/products" element={<ProductListPage />} />
+          <Route path="/products/:slug" element={<ProductDetailPage />} />
+          <Route path="/search" element={<SearchResultsPage />} />
+          <Route path="/shop/:slug" element={<ShopPage />} />
+          <Route path="/nearby" element={<NearbyPage />} />
 
-        {/* Protected — user */}
-        <Route element={<ProtectedRoute allowedActors={["user"]} />}>
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/wishlist" element={<WishlistPage />} />
+          {/* Protected — user */}
+          <Route element={<ProtectedRoute allowedActors={["user"]} />}>
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/wishlist" element={<WishlistPage />} />
+          </Route>
         </Route>
-      </Route>
 
-      {/* ── Public-only auth routes (no Navbar — full-screen forms) ────── */}
-      <Route element={<PublicOnlyRoute />}>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/verify-email" element={<VerifyEmailPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-      </Route>
+        {/* ── Public-only auth routes (no Navbar — full-screen forms) ────── */}
+        <Route element={<PublicOnlyRoute />}>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+        </Route>
 
-      <Route element={<PublicOnlyRoute actorType="seller" />}>
-        <Route path="/seller/login" element={<LoginPage />} />
-        <Route path="/seller/register" element={<SellerRegisterPage />} />
-        <Route path="/seller/verify-email" element={<VerifyEmailPage />} />
+        <Route element={<PublicOnlyRoute actorType="seller" />}>
+          <Route path="/seller/login" element={<LoginPage />} />
+          <Route path="/seller/register" element={<SellerRegisterPage />} />
+          <Route path="/seller/verify-email" element={<VerifyEmailPage />} />
+          <Route
+            path="/seller/forgot-password"
+            element={<ForgotPasswordPage />}
+          />
+        </Route>
+
+        <Route element={<PublicOnlyRoute actorType="staff" />}>
+          <Route path="/staff/login" element={<StaffLoginPage />} />
+        </Route>
+
+        {/* ── Protected — seller (Navbar + SellerSidebar) ────────────────── */}
+        <Route element={<ProtectedRoute allowedActors={["seller"]} />}>
+          <Route element={<SellerLayout />}>
+            <Route path="/seller/dashboard" element={<SellerDashboardPage />} />
+            <Route path="/seller/products" element={<SellerProductsPage />} />
+            <Route path="/seller/profile" element={<SellerProfilePage />} />
+            <Route
+              path="/seller/subscription"
+              element={<SellerSubscriptionPage />}
+            />
+          </Route>
+        </Route>
+
+        {/* ── Protected — admin (Navbar + AdminSidebar) ──────────────────── */}
         <Route
-          path="/seller/forgot-password"
-          element={<ForgotPasswordPage />}
-        />
-      </Route>
-
-      <Route element={<PublicOnlyRoute actorType="staff" />}>
-        <Route path="/staff/login" element={<StaffLoginPage />} />
-      </Route>
-
-      {/* ── Protected — seller (Navbar + SellerSidebar) ────────────────── */}
-      <Route element={<ProtectedRoute allowedActors={["seller"]} />}>
-        <Route element={<SellerLayout />}>
-          <Route path="/seller/dashboard" element={<SellerDashboardPage />} />
-          <Route path="/seller/products" element={<SellerProductsPage />} />
-          <Route path="/seller/profile" element={<SellerProfilePage />} />
-          <Route
-            path="/seller/subscription"
-            element={<SellerSubscriptionPage />}
-          />
+          element={<ProtectedRoute allowedActors={["user"]} requireAdmin />}
+        >
+          <Route element={<AdminLayout />}>
+            <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+            <Route path="/admin/sellers" element={<AdminSellersPage />} />
+            <Route path="/admin/users" element={<AdminUsersPage />} />
+            <Route path="/admin/banners" element={<AdminBannersPage />} />
+            <Route path="/admin/faqs" element={<AdminFAQsPage />} />
+            <Route path="/admin/cities" element={<CityManagement />} />
+            <Route path="/admin/staff" element={<StaffManagement />} />
+          </Route>
         </Route>
-      </Route>
 
-      {/* ── Protected — admin (Navbar + AdminSidebar) ──────────────────── */}
-      <Route element={<ProtectedRoute allowedActors={["user"]} requireAdmin />}>
-        <Route element={<AdminLayout />}>
-          <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-          <Route path="/admin/sellers" element={<AdminSellersPage />} />
-          <Route path="/admin/users" element={<AdminUsersPage />} />
-          <Route path="/admin/banners" element={<AdminBannersPage />} />
-          <Route path="/admin/faqs" element={<AdminFAQsPage />} />
-          <Route path="/admin/cities" element={<CityManagement />} />
-          <Route path="/admin/staff" element={<StaffManagement />} />
+        {/* ── Protected — city admin (Navbar + CityAdminSidebar) ─────────── */}
+        <Route
+          element={
+            <ProtectedRoute
+              requiredStaffRole="city-admin"
+              redirectTo="/staff/login"
+            />
+          }
+        >
+          <Route element={<CityAdminLayout />}>
+            <Route
+              path="/city-admin/dashboard"
+              element={<CityAdminDashboardPage />}
+            />
+            <Route
+              path="/city-admin/sellers"
+              element={<CityAdminSellersPage />}
+            />
+            <Route path="/city-admin/staff" element={<CityAdminStaffPage />} />
+          </Route>
         </Route>
-      </Route>
 
-      {/* ── Protected — city admin (Navbar + CityAdminSidebar) ─────────── */}
-      <Route
-        element={
-          <ProtectedRoute
-            requiredStaffRole="city-admin"
-            redirectTo="/staff/login"
-          />
-        }
-      >
-        <Route element={<CityAdminLayout />}>
-          <Route
-            path="/city-admin/dashboard"
-            element={<CityAdminDashboardPage />}
-          />
-          <Route path="/city-admin/sellers" element={<CityAdminSellersPage />} />
-          <Route path="/city-admin/staff" element={<CityAdminStaffPage />} />
-        </Route>
-      </Route>
-
-      {/* ── 404 ─────────────────────────────────────────────────────────── */}
-      <Route path="*" element={<NotFoundPage />} />
-    </Routes>
+        {/* ── 404 ─────────────────────────────────────────────────────────── */}
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </>
   );
 }
