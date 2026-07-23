@@ -58,6 +58,11 @@ import CityAdminStaffPage from "@/pages/cityAdmin/CityAdminStaffPage.jsx";
 
 import OfflineBanner from "./components/common/OfflineBanner.jsx";
 
+// legal
+import PrivacyPolicyPage from "./components/legal/privacyPolicy.jsx";
+import TermsAndConditionsPage from "./components/legal/termsAndCondition.jsx";
+import RefundCancellationPolicyPage from "./components/legal/RefundCancellationPolicy.jsx";
+
 // Temporary placeholder so App.jsx is functional before pages are built
 const Placeholder = ({ name }) => (
   <div className="p-8 text-lg font-medium">{name}</div>
@@ -82,7 +87,7 @@ export default function App() {
 
   return (
     <>
-     <OfflineBanner />
+      <OfflineBanner />
       <Routes>
         {/* ── Public + user routes (Navbar + Footer) ─────────────────────── */}
         <Route element={<MainLayout />}>
@@ -92,6 +97,17 @@ export default function App() {
           <Route path="/search" element={<SearchResultsPage />} />
           <Route path="/shop/:slug" element={<ShopPage />} />
           <Route path="/nearby" element={<NearbyPage />} />
+
+          {/* legal */}
+          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+          <Route
+            path="/terms-and-conditions"
+            element={<TermsAndConditionsPage />}
+          />
+          <Route
+            path="/refund-policy"
+            element={<RefundCancellationPolicyPage />}
+          />
 
           {/* Protected — user */}
           <Route element={<ProtectedRoute allowedActors={["user"]} />}>
