@@ -119,7 +119,7 @@ export default function NearbySellersMap({ radiusKm = NEARBY_DEFAULT_RADIUS_KM }
         center={[coords.lat, coords.lng]}
         zoom={13}
         scrollWheelZoom
-        style={{ height: "420px", width: "100%" }}
+        className="h-[280px] w-full sm:h-[420px]"
       >
         <TileLayer
           attribution='&copy; OpenStreetMap contributors'

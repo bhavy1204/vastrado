@@ -37,7 +37,7 @@ const Input = forwardRef(function Input({
 
       <div
         className={[
-          "flex h-11 overflow-hidden rounded-lg border bg-surface-raised transition-colors",
+          "flex h-10 overflow-hidden rounded-lg border bg-surface-raised transition-colors sm:h-11",
 
           error
             ? "border-error-border"
@@ -47,7 +47,7 @@ const Input = forwardRef(function Input({
         ].join(" ")}
       >
         {leftIcon && (
-          <div className="flex w-11 shrink-0 items-center justify-center border-r border-border text-text-muted">
+          <div className="flex w-10 shrink-0 items-center justify-center border-r border-border text-text-muted sm:w-11">
             {leftIcon}
           </div>
         )}
@@ -65,7 +65,7 @@ const Input = forwardRef(function Input({
                 : undefined
           }
           className={[
-            "flex-1 bg-transparent px-4 text-sm text-text outline-none placeholder:text-text-muted",
+            "flex-1 bg-transparent px-3 text-xs text-text outline-none placeholder:text-text-muted sm:px-4 sm:text-sm",
 
             isPassword ? "pr-0" : "",
 
@@ -79,10 +79,11 @@ const Input = forwardRef(function Input({
             type="button"
             tabIndex={-1}
             onClick={() => setShowPassword((prev) => !prev)}
-            className="flex w-11 shrink-0 items-center justify-center border-l border-border text-text-muted hover:text-text"
+            className="flex w-10 shrink-0 items-center justify-center border-l border-border text-text-muted hover:text-text sm:w-11"
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
-            {showPassword ? <EyeSlash size={18} /> : <Eye size={18} />}
+            {showPassword ? <EyeSlash size={16} className="sm:hidden" /> : <Eye size={16} className="sm:hidden" />}
+            {showPassword ? <EyeSlash size={18} className="hidden sm:block" /> : <Eye size={18} className="hidden sm:block" />}
           </button>
         )}
       </div>

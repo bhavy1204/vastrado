@@ -7,16 +7,12 @@ export default function CityAdminLayout() {
     <div className="min-h-screen bg-bg">
       <Navbar />
 
-      <div className="mx-auto flex max-w-[1800px] gap-6 p-5">
-        <div className="hidden shrink-0 sm:block">
+      <div className="mx-auto flex max-w-[1800px] flex-col gap-6 p-4 sm:flex-row sm:p-5">
+        <div className="shrink-0">
           <CityAdminSidebar />
         </div>
 
-        <div className="sm:hidden">
-          <CityAdminSidebar />
-        </div>
-
-        <main className="min-w-0 flex-1 rounded-2xl border border-border bg-surface-raised p-6 shadow-sm">
+        <main className="min-w-0 flex-1 rounded-2xl border border-border bg-surface-raised p-4 shadow-sm sm:p-6">
           <Outlet />
         </main>
       </div>

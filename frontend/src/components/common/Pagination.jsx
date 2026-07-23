@@ -26,23 +26,24 @@ export default function Pagination({
   return (
     <nav
       aria-label="Pagination"
-      className="flex items-center justify-center gap-1.5"
+      className="flex items-center justify-center gap-1 sm:gap-1.5"
     >
       <button
         type="button"
         onClick={onPrev}
         disabled={!hasPrevPage}
         aria-label="Previous page"
-        className="inline-flex items-center justify-center h-9 w-9 rounded-md border border-border text-text-secondary hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-border text-text-secondary hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:h-9 sm:w-9"
       >
-        <CaretLeft size={16} />
+        <CaretLeft size={14} className="sm:hidden" />
+        <CaretLeft size={16} className="hidden sm:block" />
       </button>
 
       {pages.map((entry, idx) =>
         entry === "…" ? (
           <span
             key={`ellipsis-${idx}`}
-            className="px-1 text-text-muted select-none"
+            className="px-0.5 text-text-muted select-none sm:px-1"
           >
             …
           </span>
@@ -53,7 +54,8 @@ export default function Pagination({
             onClick={() => onGoTo?.(entry)}
             aria-current={entry === page ? "page" : undefined}
             className={[
-              "inline-flex items-center justify-center h-9 min-w-9 px-2 rounded-md text-sm font-medium",
+              "inline-flex items-center justify-center h-8 min-w-8 px-1.5 rounded-md text-xs font-medium",
+              "sm:h-9 sm:min-w-9 sm:px-2 sm:text-sm",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
               entry === page
                 ? "bg-primary text-text-on-primary"
@@ -70,9 +72,10 @@ export default function Pagination({
         onClick={onNext}
         disabled={!hasNextPage}
         aria-label="Next page"
-        className="inline-flex items-center justify-center h-9 w-9 rounded-md border border-border text-text-secondary hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-border text-text-secondary hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:h-9 sm:w-9"
       >
-        <CaretRight size={16} />
+        <CaretRight size={14} className="sm:hidden" />
+        <CaretRight size={16} className="hidden sm:block" />
       </button>
     </nav>
   );

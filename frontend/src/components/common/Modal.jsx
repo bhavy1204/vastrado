@@ -50,7 +50,7 @@ export default function Modal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4"
       role="presentation"
     >
       <div
@@ -65,15 +65,18 @@ export default function Modal({
         aria-label={title}
         tabIndex={-1}
         className={[
-          "relative w-full rounded-lg bg-surface-raised border border-border shadow-xl",
-          "max-h-[90vh] flex flex-col outline-none",
+          "relative w-full bg-surface-raised border border-border shadow-xl",
+          "rounded-none sm:rounded-lg",
+          "max-h-full sm:max-h-[90vh] h-full sm:h-auto flex flex-col outline-none",
           SIZE_CLASSES[size],
         ].join(" ")}
       >
         {(title || onClose) && (
-          <div className="flex items-center justify-between px-5 py-4 border-b border-border shrink-0">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0 sm:px-5 sm:py-4">
             {title && (
-              <h2 className="text-base font-semibold text-text">{title}</h2>
+              <h2 className="text-sm font-semibold text-text sm:text-base">
+                {title}
+              </h2>
             )}
             <button
               type="button"
@@ -81,15 +84,18 @@ export default function Modal({
               aria-label="Close"
               className="ml-auto text-text-muted hover:text-text rounded-md p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
-              <X size={20} />
+              <X size={18} className="sm:hidden" />
+              <X size={20} className="hidden sm:block" />
             </button>
           </div>
         )}
 
-        <div className="px-5 py-4 overflow-y-auto">{children}</div>
+        <div className="px-4 py-3 overflow-y-auto sm:px-5 sm:py-4">
+          {children}
+        </div>
 
         {footer && (
-          <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-border shrink-0">
+          <div className="flex items-center justify-end gap-2 px-4 py-3 border-t border-border shrink-0 sm:px-5 sm:py-4">
             {footer}
           </div>
         )}

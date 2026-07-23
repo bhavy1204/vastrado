@@ -51,9 +51,9 @@ const VARIANT_CLASSES = {
 };
 
 const SIZE_CLASSES = {
-  sm: "h-10 px-4 text-sm gap-2",
-  md: "h-11 px-5 text-sm gap-2.5",
-  lg: "h-12 px-7 text-base gap-3",
+  sm: "h-9 px-3 text-xs gap-1.5 sm:h-10 sm:px-4 sm:text-sm sm:gap-2",
+  md: "h-10 px-4 text-sm gap-2 sm:h-11 sm:px-5 sm:gap-2.5",
+  lg: "h-11 px-5 text-sm gap-2.5 sm:h-12 sm:px-7 sm:text-base sm:gap-3",
 };
 
 const Button = forwardRef(function Button(

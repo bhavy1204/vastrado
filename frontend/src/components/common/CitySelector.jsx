@@ -53,12 +53,13 @@ export default function CitySelector({ className = "", label }) {
 
       <div
         className={[
-          "flex h-11 overflow-hidden rounded-lg border border-border bg-surface-raised transition-colors",
+          "flex h-10 overflow-hidden rounded-lg border border-border bg-surface-raised transition-colors sm:h-11",
           "focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20",
         ].join(" ")}
       >
-        <div className="flex w-11 shrink-0 items-center justify-center border-r border-border text-text-muted">
-          <MapPin size={18} />
+        <div className="flex w-10 shrink-0 items-center justify-center border-r border-border text-text-muted sm:w-11">
+          <MapPin size={16} className="sm:hidden" />
+          <MapPin size={18} className="hidden sm:block" />
         </div>
 
         <select
@@ -67,7 +68,7 @@ export default function CitySelector({ className = "", label }) {
           disabled={isLoading || cities.length === 0}
           aria-label={label || "Select city"}
           className={[
-            "flex-1 bg-transparent px-3 text-sm capitalize text-text outline-none",
+            "flex-1 bg-transparent px-2.5 text-xs capitalize text-text outline-none sm:px-3 sm:text-sm",
             "disabled:cursor-not-allowed disabled:opacity-60",
           ].join(" ")}
         >

@@ -7,19 +7,21 @@ export default function AdminLayout() {
     <div className="min-h-screen bg-bg">
       <Navbar />
 
-      <div className="mx-auto flex max-w-[1800px] gap-6 p-5">
-        {/* Sidebar */}
-        <div className="hidden shrink-0 sm:block">
-          <AdminSidebar />
+      {/* Mobile Sidebar — horizontal scroll strip below navbar */}
+      <div className="border-b border-border bg-surface-raised sm:hidden">
+        <div className="scrollbar-hide flex gap-2 overflow-x-auto px-4 py-2">
+          <AdminSidebar variant="horizontal" />
         </div>
+      </div>
 
-        {/* Mobile Sidebar */}
-        <div className="sm:hidden">
-          <AdminSidebar />
+      <div className="mx-auto flex max-w-[1800px] gap-6 p-4 sm:p-5">
+        {/* Sidebar — desktop only */}
+        <div className="hidden shrink-0 sm:block">
+          <AdminSidebar variant="vertical" />
         </div>
 
         {/* Page Content */}
-        <main className="min-w-0 flex-1 rounded-2xl border border-border bg-surface-raised p-6 shadow-sm">
+        <main className="min-w-0 flex-1 rounded-2xl border border-border bg-surface-raised p-4 shadow-sm sm:p-6">
           <Outlet />
         </main>
       </div>

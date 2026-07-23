@@ -8,7 +8,7 @@ export default function SellerLayout() {
       <Navbar />
       <div className="flex flex-1 flex-col sm:flex-row">
         <SellerSidebar />
-        <main className="flex-1">
+        <main className="flex-1 min-w-0">
           <Outlet />
         </main>
       </div>
