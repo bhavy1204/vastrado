@@ -12,7 +12,7 @@ import { formatPrice, formatDiscount } from "@/lib/formatters";
 export default function ProductCard({ product, onToggleWishlist, isWishlisted = false }) {
   const {
     slug,
-    name,
+    productName,
     images,
     price,
     discountedPrice,
@@ -52,31 +52,44 @@ export default function ProductCard({ product, onToggleWishlist, isWishlisted = 
                 e.preventDefault();
                 onToggleWishlist(product);
               }}
-              aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+              aria-label={
+                isWishlisted ? "Remove from wishlist" : "Add to wishlist"
+              }
               className="absolute top-2 right-2 h-8 w-8 rounded-full bg-surface-raised/90 backdrop-blur flex items-center justify-center shadow-sm hover:scale-105 transition-transform"
             >
               <Heart
                 size={16}
                 weight={isWishlisted ? "fill" : "regular"}
-                className={isWishlisted ? "text-primary" : "text-text-secondary"}
+                className={
+                  isWishlisted ? "text-primary" : "text-text-secondary"
+                }
               />
             </button>
           )}
         </div>
 
-        <div className="mt-2 flex flex-col gap-0.5">
-          <p className="text-sm text-text font-medium truncate">{name}</p>
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-text">
-              {formatPrice(hasDiscount ? discountedPrice : price)}
-            </span>
-            {hasDiscount && (
-              <span className="text-xs text-text-muted line-through">
-                {formatPrice(price)}
+        <div className="mt-2 flex flex-col gap-1">
+          <p className="text-xs sm:text-sm text-text font-medium leading-snug line-clamp-2">
+            {productName}
+          </p>
+
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-baseline gap-1.5 min-w-0">
+              <span className="text-sm sm:text-base font-semibold text-white bg-success rounded-md px-1.5 py-0.5">
+                {formatPrice(hasDiscount ? discountedPrice : price)}
               </span>
-            )}
+              {hasDiscount && (
+                <span className="text-xs text-text-muted line-through truncate">
+                  {formatPrice(price)}
+                </span>
+              )}
+            </div>
+
             {averageRating > 0 && (
-              <span className="text-xs text-text-muted ml-auto">★ {averageRating.toFixed(1)}</span>
+              <span className="shrink-0 flex items-center gap-0.5 text-xs text-text-muted">
+                <Star size={12} weight="fill" className="text-primary" />
+                {averageRating.toFixed(1)}
+              </span>
             )}
           </div>
         </div>

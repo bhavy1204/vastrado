@@ -65,7 +65,7 @@ const Input = forwardRef(function Input({
                 : undefined
           }
           className={[
-            "flex-1 bg-transparent px-3 text-xs text-text outline-none placeholder:text-text-muted sm:px-4 sm:text-sm",
+            "min-w-0 flex-1 bg-transparent px-3 text-xs text-text outline-none placeholder:text-text-muted sm:px-4 sm:text-sm",
 
             isPassword ? "pr-0" : "",
 
@@ -82,8 +82,16 @@ const Input = forwardRef(function Input({
             className="flex w-10 shrink-0 items-center justify-center border-l border-border text-text-muted hover:text-text sm:w-11"
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
-            {showPassword ? <EyeSlash size={16} className="sm:hidden" /> : <Eye size={16} className="sm:hidden" />}
-            {showPassword ? <EyeSlash size={18} className="hidden sm:block" /> : <Eye size={18} className="hidden sm:block" />}
+            {showPassword ? (
+              <EyeSlash size={16} className="sm:hidden" />
+            ) : (
+              <Eye size={16} className="sm:hidden" />
+            )}
+            {showPassword ? (
+              <EyeSlash size={18} className="hidden sm:block" />
+            ) : (
+              <Eye size={18} className="hidden sm:block" />
+            )}
           </button>
         )}
       </div>

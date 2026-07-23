@@ -102,7 +102,9 @@ export default function ShopHeader({
         </div>
 
         <div className="mt-3 flex flex-col gap-1.5 pb-4">
-          <h1 className="text-lg font-bold text-text">{shopName}</h1>
+          <h1 className="text-base sm:text-lg font-bold text-text">
+            {shopName}
+          </h1>
 
           <div className="flex items-center gap-1 text-sm text-text-muted">
             <MapPin size={16} />
@@ -153,12 +155,12 @@ export default function ShopHeader({
             </span>
           </div>
 
-          
-          <div className="flex items-center gap-2 mt-1">
+          <div className="flex flex-wrap items-center gap-2 mt-1">
             <Button
               variant="secondary"
               size="sm"
               leftIcon={<MapPin size={15} />}
+              className="flex-1 sm:flex-none"
               onClick={() =>
                 window.open(
                   `${seller.googleMapLink}`,
@@ -173,6 +175,7 @@ export default function ShopHeader({
               target="_blank"
               rel="noopener noreferrer"
               variant="primary"
+              className="w-full sm:w-auto"
               onClick={() =>
                 window.open(
                   `https://wa.me/91${seller.whatsappNumber}`,
@@ -186,6 +189,7 @@ export default function ShopHeader({
             <Button
               variant="secondary"
               leftIcon={<Phone size={18} />}
+              className="flex-1 sm:flex-none"
               onClick={() => window.open(`tel:${seller.phone}`)}
             >
               Call Seller

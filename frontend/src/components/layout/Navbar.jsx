@@ -63,7 +63,7 @@ export default function Navbar() {
   };
 
  return (
-   <header className="sticky top-0 z-40 w-full overflow-x-hidden bg-surface-raised border-b border-border">
+   <header className="sticky top-0 z-40 w-full bg-surface-raised border-b border-border">
      <div className="max-w-7xl mx-auto px-4 sm:px-6">
        <div className="flex items-center gap-4 h-16">
          <Link to="/" className="flex items-center gap-2 shrink-0">

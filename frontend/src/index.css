@@ -124,3 +124,13 @@ a {
   text-decoration: none;
 }
 
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+input::-webkit-textfield-decoration-container,
+input::-webkit-credentials-auto-fill-button {
+  display: none !important;
+}
+
