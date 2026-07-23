@@ -9,6 +9,7 @@ import useAuthStore from "@/store/useAuthStore";
 import { userLoginSchema, sellerLoginSchema } from "@/lib/validators";
 import Input from "@/components/common/Input";
 import Button from "@/components/common/Button";
+import { GoogleLogin } from "@react-oauth/google";
 
 /**
  * LoginPage
@@ -46,7 +47,7 @@ export default function LoginPage() {
   const { setUser, setSeller } = useAuthStore();
 
   const [activeTab, setActiveTab] = useState(
-    location.pathname.startsWith("/seller") ? "seller" : "user"
+    location.pathname.startsWith("/seller") ? "seller" : "user",
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -74,8 +75,12 @@ export default function LoginPage() {
         const res = await userService.login(data);
         const user = res.data.data.user ?? res.data.data;
         setUser(user);
-        toast.success(`Welcome back${user?.fullName ? `, ${user.fullName}` : ""}`);
-        navigate(user?.role === "admin" ? "/admin/dashboard" : "/", { replace: true });
+        toast.success(
+          `Welcome back${user?.fullName ? `, ${user.fullName}` : ""}`,
+        );
+        navigate(user?.role === "admin" ? "/admin/dashboard" : "/", {
+          replace: true,
+        });
       } else {
         const res = await sellerService.login(data);
         const seller = res.data.data.seller ?? res.data.data;
@@ -84,7 +89,9 @@ export default function LoginPage() {
         navigate("/seller/dashboard", { replace: true });
       }
     } catch (err) {
-      const message = err?.response?.data?.message || "Invalid credentials. Please try again.";
+      const message =
+        err?.response?.data?.message ||
+        "Invalid credentials. Please try again.";
       toast.error(message);
     } finally {
       setIsSubmitting(false);
@@ -96,7 +103,9 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-6">
           <h1 className="text-xl font-bold text-text">Welcome back</h1>
-          <p className="text-sm text-text-muted mt-1">Log in to continue to ClothMarket</p>
+          <p className="text-sm text-text-muted mt-1">
+            Log in to continue to ClothMarket
+          </p>
         </div>
 
         <div className="flex rounded-md bg-surface border border-border p-1 mb-6">
@@ -136,22 +145,67 @@ export default function LoginPage() {
 
           <div className="flex justify-end -mt-2">
             <Link
-              to={activeTab === "seller" ? "/seller/forgot-password" : "/forgot-password"}
+              to={
+                activeTab === "seller"
+                  ? "/seller/forgot-password"
+                  : "/forgot-password"
+              }
               className="text-xs text-primary hover:underline"
             >
               Forgot password?
             </Link>
           </div>
 
-          <Button type="submit" variant="primary" fullWidth isLoading={isSubmitting}>
+          <Button
+            type="submit"
+            variant="primary"
+            fullWidth
+            isLoading={isSubmitting}
+          >
             Log in
           </Button>
         </form>
 
         {activeTab === "user" && (
+          <>
+            <div className="flex items-center gap-3 my-6">
+              <div className="h-px flex-1 bg-border" />
+              <span className="text-xs text-text-muted">OR</span>
+              <div className="h-px flex-1 bg-border" />
+            </div>
+
+            <div className="flex justify-center">
+              <GoogleLogin
+                onSuccess={async (credentialResponse) => {
+                  try {
+                    const idToken = credentialResponse.credential;
+                    const res = await userService.googleAuth({ idToken });
+                    setUser(res.data.data);
+                    navigate("/");
+                  } catch (err) {
+                    toast.error(
+                      err?.response?.data?.message ||
+                        "Google sign-in failed. Please try again.",
+                    );
+                  }
+                }}
+                onError={() => {
+                  toast.error("Google sign-in failed. Please try again.");
+                }}
+                shape="pill"
+                width="320"
+              />
+            </div>
+          </>
+        )}
+
+        {activeTab === "user" && (
           <p className="text-center text-sm text-text-muted mt-6">
             New here?{" "}
-            <Link to="/register" className="text-primary font-medium hover:underline">
+            <Link
+              to="/register"
+              className="text-primary font-medium hover:underline"
+            >
               Create an account
             </Link>
           </p>
@@ -160,4 +214,3 @@ export default function LoginPage() {
     </div>
   );
 }
-

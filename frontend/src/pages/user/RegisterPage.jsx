@@ -8,6 +8,7 @@ import { userService } from "@/api/index";
 import { userRegisterSchema } from "@/lib/validators";
 import Input from "@/components/common/Input";
 import Button from "@/components/common/Button";
+import { GoogleLogin } from "@react-oauth/google";
 
 /**
  * RegisterPage (user)
@@ -35,9 +36,14 @@ export default function RegisterPage() {
     try {
       await userService.register(data);
       toast.success("Account created — check your email for the OTP");
-      navigate("/verify-email", { state: { email: data.email }, replace: true });
+      navigate("/verify-email", {
+        state: { email: data.email },
+        replace: true,
+      });
     } catch (err) {
-      const message = err?.response?.data?.message || "Couldn't create your account. Please try again.";
+      const message =
+        err?.response?.data?.message ||
+        "Couldn't create your account. Please try again.";
       toast.error(message);
     } finally {
       setIsSubmitting(false);
@@ -94,14 +100,51 @@ export default function RegisterPage() {
             {...register("confirmPassword")}
           />
 
-          <Button type="submit" variant="primary" fullWidth isLoading={isSubmitting}>
+          <Button
+            type="submit"
+            variant="primary"
+            fullWidth
+            isLoading={isSubmitting}
+          >
             Create account
           </Button>
         </form>
 
+        <div className="flex items-center gap-3 my-6">
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-xs text-text-muted">OR</span>
+          <div className="h-px flex-1 bg-border" />
+        </div>
+
+        <div className="flex justify-center">
+          <GoogleLogin
+            onSuccess={async (credentialResponse) => {
+              try {
+                const idToken = credentialResponse.credential;
+                const res = await userService.googleAuth({ idToken });
+                setUser(res.data.data);
+                navigate("/");
+              } catch (err) {
+                toast.error(
+                  err?.response?.data?.message ||
+                    "Google sign-in failed. Please try again.",
+                );
+              }
+            }}
+            onError={() => {
+              toast.error("Google sign-in failed. Please try again.");
+            }}
+            shape="pill"
+            width="320"
+          />
+        </div>
+
         <p className="text-center text-sm text-text-muted mt-6">
           Already have an account?{" "}
-          <Link to="/login" className="text-primary font-medium hover:underline">
+          <Link
+            to="/login"
+            className="text-primary font-medium hover:underline"
+          >
             Log in
           </Link>
         </p>
@@ -109,4 +152,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-
