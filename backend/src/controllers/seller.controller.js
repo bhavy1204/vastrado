@@ -44,6 +44,23 @@ const processAndUploadImage = async (buffer, folder, filename) => {
     return { url, key };
 };
 
+const processAndUploadBanner = async (buffer, filename) => {
+    const webpBuffer = await sharp(buffer)
+        .resize({
+            width: 1600,
+            height: 500,
+            fit: "cover",
+            withoutEnlargement: true,
+        })
+        .webp({ quality: 82 })
+        .toBuffer();
+
+    const key = `sellers/banners/${filename}-${Date.now()}.webp`;
+    const url = await uploadToB2(webpBuffer, key, "image/webp");
+
+    return { url, key };
+};
+
 // controllers
 
 const registerSeller = asyncHandler(async (req, res) => {
@@ -97,7 +114,7 @@ const registerSeller = asyncHandler(async (req, res) => {
     }
 
     if (req.files?.banner?.[0]) {
-        const { url } = await processAndUploadImage(
+        const { url } = await processAndUploadBanner(
             req.files.banner[0].buffer,
             "sellers/banners",
             seller._id.toString()
@@ -497,7 +514,7 @@ const updateSellerBanner = asyncHandler(async (req, res) => {
 
     const seller = await Seller.findById(req.user._id).select("banner");
 
-    const { url } = await processAndUploadImage(
+    const { url } = await processAndUploadBanner(
         req.file.buffer,
         "sellers/banners",
         req.user._id.toString()
@@ -546,7 +563,7 @@ const getNearbySellers = asyncHandler(async (req, res) => {
     );
 
     const sellers = await Seller.find({
-        status:"approved",
+        status: "approved",
         location: {
             $nearSphere: {
                 $geometry: {

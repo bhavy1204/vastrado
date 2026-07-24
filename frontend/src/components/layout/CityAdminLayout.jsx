@@ -5,7 +5,7 @@ import CityAdminSidebar from "@/components/layout/CityAdminSideBar";
 export default function CityAdminLayout() {
   return (
     <div className="min-h-screen bg-bg">
-      <Navbar />
+      {/* <Navbar /> */}
 
       <div className="mx-auto flex max-w-[1800px] flex-col gap-6 p-4 sm:flex-row sm:p-5">
         <div className="shrink-0">

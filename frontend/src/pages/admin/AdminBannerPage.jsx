@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import {
   Image,
   CheckCircle,
@@ -281,23 +281,70 @@ function StatusPill({ status }) {
   );
 }
 
+const EXPIRY_DAYS_OPTIONS = [1, 3, 10, 15, 30, 45, 60, 90];
+
 function CreateBannerModal({ isOpen, onClose, onCreated }) {
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [redirectUrl, setRedirectUrl] = useState("");
+  const [scope, setScope] = useState("GLOBAL");
+  const [cityId, setCityId] = useState("");
+  const [sellerId, setSellerId] = useState("");
+  const [isSponsored, setIsSponsored] = useState(false);
+  const [order, setOrder] = useState("");
+  const [expiryDays, setExpiryDays] = useState("");
   const [file, setFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const previewUrlRef = useRef(null);
+
+  useEffect(() => {
+    previewUrlRef.current = previewUrl;
+  }, [previewUrl]);
+
+
+  useEffect(() => {
+    return () => {
+      if (previewUrlRef.current) {
+        URL.revokeObjectURL(previewUrlRef.current);
+      }
+    };
+  }, []);
 
   const handleFileChange = (e) => {
     const selected = e.target.files?.[0];
     if (!selected) return;
 
-   const errorMessage = validateImageFile(selected, 5);
-   if (errorMessage) {
-     toast.error(errorMessage);
-     e.target.value = "";
-     return;
-   }
-    setFile(selected);
+    const errorMessage = validateImageFile(selected, 5);
+    if (errorMessage) {
+      toast.error(errorMessage);
+      e.target.value = "";
+      return;
+    }
 
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
+    setFile(selected);
+    setPreviewUrl(URL.createObjectURL(selected));
+  };
+
+  const resetForm = () => {
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setTitle("");
+    setDescription("");
+    setRedirectUrl("");
+    setScope("GLOBAL");
+    setCityId("");
+    setSellerId("");
+    setIsSponsored(false);
+    setOrder("");
+    setExpiryDays("");
+    setFile(null);
+    setPreviewUrl(null);
   };
 
   const handleSubmit = async () => {
@@ -305,15 +352,32 @@ function CreateBannerModal({ isOpen, onClose, onCreated }) {
       toast.error("Please choose a banner image");
       return;
     }
+    if (scope === "CITY" && !cityId) {
+      toast.error("City ID is required for a city banner");
+      return;
+    }
+    if (scope === "SELLER" && !sellerId) {
+      toast.error("Seller ID is required for a seller banner");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const formData = new FormData();
       formData.append("title", title);
+      formData.append("description", description);
+      formData.append("redirectUrl", redirectUrl);
+      formData.append("scope", scope);
+      if (scope === "CITY") formData.append("cityId", cityId);
+      if (scope === "SELLER") formData.append("sellerId", sellerId);
+      formData.append("isSponsored", isSponsored);
+      if (order) formData.append("order", order);
+      if (expiryDays) formData.append("expiryDays", expiryDays);
       formData.append("banner", file);
+
       await siteContentService.adminCreateBanner(formData);
       toast.success("Banner added");
-      setTitle("");
-      setFile(null);
+      resetForm();
       onCreated();
     } catch (err) {
       toast.error(err?.response?.data?.message || "Couldn't add this banner");
@@ -335,6 +399,116 @@ function CreateBannerModal({ isOpen, onClose, onCreated }) {
             className="w-full h-10 rounded-md border border-border bg-surface-raised text-sm text-text px-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
           />
         </div>
+
+        <div>
+          <label className="text-sm font-medium text-text block mb-1.5">
+            Description (optional)
+          </label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={2}
+            className="w-full rounded-md border border-border bg-surface-raised text-sm text-text px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+          />
+        </div>
+
+        <div>
+          <label className="text-sm font-medium text-text block mb-1.5">
+            Redirect URL (optional)
+          </label>
+          <input
+            value={redirectUrl}
+            onChange={(e) => setRedirectUrl(e.target.value)}
+            placeholder="https://..."
+            className="w-full h-10 rounded-md border border-border bg-surface-raised text-sm text-text px-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+          />
+        </div>
+
+        <div>
+          <label className="text-sm font-medium text-text block mb-1.5">
+            Scope
+          </label>
+          <select
+            value={scope}
+            onChange={(e) => setScope(e.target.value)}
+            className="w-full h-10 rounded-md border border-border bg-surface-raised text-sm text-text px-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+          >
+            <option value="GLOBAL">Global</option>
+            <option value="CITY">City</option>
+            <option value="SELLER">Seller</option>
+          </select>
+        </div>
+
+        {scope === "CITY" && (
+          <div>
+            <label className="text-sm font-medium text-text block mb-1.5">
+              City ID
+            </label>
+            <input
+              value={cityId}
+              onChange={(e) => setCityId(e.target.value)}
+              className="w-full h-10 rounded-md border border-border bg-surface-raised text-sm text-text px-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+            />
+          </div>
+        )}
+
+        {scope === "SELLER" && (
+          <div>
+            <label className="text-sm font-medium text-text block mb-1.5">
+              Seller ID
+            </label>
+            <input
+              value={sellerId}
+              onChange={(e) => setSellerId(e.target.value)}
+              className="w-full h-10 rounded-md border border-border bg-surface-raised text-sm text-text px-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+            />
+          </div>
+        )}
+
+        <div className="flex items-center gap-2">
+          <input
+            id="isSponsored"
+            type="checkbox"
+            checked={isSponsored}
+            onChange={(e) => setIsSponsored(e.target.checked)}
+            className="h-4 w-4 rounded border-border"
+          />
+          <label htmlFor="isSponsored" className="text-sm font-medium text-text">
+            Sponsored
+          </label>
+        </div>
+
+        <div>
+          <label className="text-sm font-medium text-text block mb-1.5">
+            Order (optional)
+          </label>
+          <input
+            type="number"
+            min={0}
+            value={order}
+            onChange={(e) => setOrder(e.target.value)}
+            className="w-full h-10 rounded-md border border-border bg-surface-raised text-sm text-text px-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+          />
+        </div>
+
+        <div>
+          <label className="text-sm font-medium text-text block mb-1.5">
+            Expires in (optional)
+          </label>
+          <select
+            value={expiryDays}
+            onChange={(e) => setExpiryDays(e.target.value)}
+            className="w-full h-10 rounded-md border border-border bg-surface-raised text-sm text-text px-3 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+          >
+            <option value="">No expiry</option>
+            {EXPIRY_DAYS_OPTIONS.map((d) => (
+              <option key={d} value={d}>
+                {d} {d === 1 ? "day" : "days"}
+              </option>
+            ))}
+          </select>
+        </div>
+
         <div>
           <label className="text-sm font-medium text-text block mb-1.5">
             Image
@@ -344,7 +518,15 @@ function CreateBannerModal({ isOpen, onClose, onCreated }) {
             accept="image/jpeg,image/png,image/webp"
             onChange={handleFileChange}
           />
+          {previewUrl && (
+            <img
+              src={previewUrl}
+              alt="Banner preview"
+              className="mt-2 w-full h-32 object-cover rounded-md border border-border"
+            />
+          )}
         </div>
+
         <div className="flex justify-end gap-2">
           <Button variant="secondary" onClick={onClose}>
             Cancel

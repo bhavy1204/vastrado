@@ -2,9 +2,6 @@ import { body } from "express-validator";
 import { handleValidationErrors } from "./commonErrorHandler.validator.js";
 
 export const validateCreateBanner = [
-    body("image")
-        .trim()
-        .notEmpty().withMessage("Banner image is required"),
 
     body("title")
         .optional()
@@ -17,7 +14,7 @@ export const validateCreateBanner = [
         .isLength({ max: 300 }).withMessage("Description must be at most 300 characters"),
 
     body("redirectUrl")
-        .optional()
+        .optional({ checkFalsy: true })
         .trim()
         .isURL().withMessage("Invalid redirect URL"),
 

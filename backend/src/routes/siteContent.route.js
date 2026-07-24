@@ -20,6 +20,10 @@ import { verifyJWT, verifySellerOnly } from "../middleware/auth.middleware.js";
 import { verifyAdmin } from "../middleware/admin.middleware.js";
 import { uploadSellerBanner } from "../middleware/upload.middleware.js";
 
+import {validateCreateBanner} from "../middleware/validators/banner.validator.js"
+import { validateBannerScope } from "../middleware/banner.middleware.js";
+
+
 const router = express.Router();
 
 // hero Banners
@@ -34,7 +38,7 @@ router.patch("/banners/:bannerId", verifyJWT, verifySellerOnly, updateBanner);
 // admin side
 
 router.get("/banners/admin", verifyJWT, verifyAdmin, adminGetAllBanners);
-router.post("/banners/admin", verifyJWT, verifyAdmin, uploadSellerBanner, adminCreateBanner);
+router.post("/banners/admin", verifyJWT, verifyAdmin, uploadSellerBanner, validateCreateBanner, validateBannerScope, adminCreateBanner );
 router.patch("/banners/admin/reorder", verifyJWT, verifyAdmin, updateBannerOrder);
 router.patch("/banners/admin/:bannerId", verifyJWT, verifyAdmin, adminUpdateBanner);
 router.patch("/banners/:bannerId/approve", verifyJWT, verifyAdmin, approveBanner);

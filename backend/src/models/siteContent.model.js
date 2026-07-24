@@ -24,7 +24,7 @@ const heroBannerSchema = new mongoose.Schema(
 
         scope: {
             type: String,
-            enum: ["GLOBAL", "CITY"],
+            enum: ["GLOBAL", "CITY", "SELLER"],
             required: true,
         },
 

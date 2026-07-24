@@ -8,7 +8,7 @@ import { uploadToB2 } from "../utils/B2.js";
 
 // helper
 
-const EXPIRY_DAYS = [1, 3, 10];
+const EXPIRY_DAYS = [1, 3, 10, 15, 30, 45, 60, 90];
 
 const processAndUploadBannerImage = async (buffer, folder, filename) => {
     const webpBuffer = await sharp(buffer)
@@ -143,7 +143,17 @@ const adminCreateBanner = asyncHandler(async (req, res) => {
         throw new APIError(400, "Banner image is required");
     }
 
-    const { title, description, redirectUrl, expiryDays, order } = req.body;
+    const {
+        title,
+        description,
+        redirectUrl,
+        expiryDays,
+        order,
+        scope,
+        cityId,
+        sellerId,
+        isSponsored,
+    } = req.body;
 
     const parsedDays = parseInt(expiryDays);
 
@@ -162,7 +172,10 @@ const adminCreateBanner = asyncHandler(async (req, res) => {
         title: title || "",
         description: description || "",
         redirectUrl: redirectUrl || "",
-        isSponsored: false,
+        scope,
+        cityId: cityId || null,
+        sellerId: sellerId || null,
+        isSponsored: isSponsored ?? false,
         status: "approved",
         order: order ? parseInt(order) : 0,
         expiresAt: expiryDays ? calcExpiresAt(parsedDays) : undefined,
